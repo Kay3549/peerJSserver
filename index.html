@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One-Way Screen Share with Drawing</title>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <style>
+        #drawingCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+        video {
+            width: 100%;
+            height: auto;
+        }
+        #container {
+            position: relative;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Screen Sharing with Drawing</h2>
+    <p>My Peer ID: <span id="peer-id">Loading...</span></p>
+
+    <input type="text" id="target-peer-id" placeholder="Enter Viewer Peer ID">   
+    <button onclick="startScreenShare()">Start Screen Share</button>
+    <button onclick="toggleDraw()">Draw Mode</button>
+    <button onclick="clearDrawing()">Clear Drawing</button>
+
+    <div id="container">
+        <video id="local-video" autoplay playsinline muted></video>
+        <canvas id="drawingCanvas"></canvas>
+    </div>
+
+    <script>
+        const peer = new Peer(null, {
+            host: 'localhost',
+            port: 9000,
+            path: '/myapp'
+        });
+
+        let localStream, conn, drawEnabled = false, isDrawing = false;
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+
+        peer.on('open', (id) => {
+            document.getElementById('peer-id').innerText = id;
+        });
+
+        async function startScreenShare() {
+            try {
+                localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                document.getElementById('local-video').srcObject = localStream;
+
+                const targetId = document.getElementById('target-peer-id').value;
+                if (!targetId) return alert("Enter the viewer's Peer ID");
+
+                peer.call(targetId, localStream);
+                conn = peer.connect(targetId);
+
+                resizeCanvas();
+
+                conn.on('open', () => {
+                    conn.send({ type: 'init', width: canvas.width, height: canvas.height });
+                });
+
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        function toggleDraw() {
+            drawEnabled = !drawEnabled;
+            canvas.style.pointerEvents = drawEnabled ? 'auto' : 'none';
+        }
+
+        function clearDrawing() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (conn) conn.send({ type: 'clear' });
+        }
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', () => isDrawing = false);
+        canvas.addEventListener('mouseleave', () => isDrawing = false);
+
+        function startDraw(e) {
+            if (!drawEnabled) return;
+            isDrawing = true;
+            draw(e);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (conn) conn.send({
+                type: 'draw',
+                x: x / canvas.width,
+                y: y / canvas.height
+            });
+        }
+
+        function resizeCanvas() {
+            const video = document.getElementById('local-video');
+            canvas.width = video.clientWidth;
+            canvas.height = video.clientHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+    </script>
+</body>
+
+</html>

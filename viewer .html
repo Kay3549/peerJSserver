@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Viewer</title>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <style>
+        #remote-video {
+            width: 100%;
+            height: auto;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+        #container {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Viewer</h2>
+    <p>My Peer ID: <span id="peer-id">Loading...</span></p>
+
+    <div id="container">
+        <video id="remote-video" autoplay playsinline></video>
+        <canvas id="drawingCanvas"></canvas>
+    </div>
+
+    <script>
+        const peer = new Peer(null, {
+            host: 'localhost',
+            port: 9000,
+            path: '/myapp'
+        });
+
+        const video = document.getElementById('remote-video');
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('container');
+
+        let originalWidth = 0, originalHeight = 0;
+
+        peer.on('open', (id) => {
+            document.getElementById('peer-id').innerText = id;
+        });
+
+        peer.on('call', (call) => {
+            call.answer();
+            call.on('stream', (remoteStream) => {
+                video.srcObject = remoteStream;
+                resizeCanvas();
+            });
+        });
+
+        peer.on('connection', (conn) => {
+            conn.on('data', (data) => {
+                if (data.type === 'init') {
+                    originalWidth = data.width;
+                    originalHeight = data.height;
+                    setAspectRatio();
+                }
+                if (data.type === 'draw') drawOnCanvas(data.x, data.y);
+                if (data.type === 'clear') clearCanvas();
+            });
+        });
+
+        function setAspectRatio() {
+            const ratio = originalWidth / originalHeight;
+            container.style.aspectRatio = ratio;
+            resizeCanvas();
+        }
+
+        function resizeCanvas() {
+            canvas.width = video.clientWidth;
+            canvas.height = video.clientHeight;
+        }
+
+        function drawOnCanvas(normalizedX, normalizedY) {
+            const x = normalizedX * canvas.width;
+            const y = normalizedY * canvas.height;
+
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+    </script>
+
+</body>
+
+</html>
