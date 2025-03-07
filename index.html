@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,13 +22,11 @@
         }
     </style>
 </head>
-
 <body>
-
     <h2>Screen Sharing with Drawing</h2>
     <p>My Peer ID: <span id="peer-id">Loading...</span></p>
 
-    <input type="text" id="target-peer-id" placeholder="Enter Viewer Peer ID">   
+    <input type="text" id="target-peer-id" placeholder="Enter Viewer Peer ID">
     <button onclick="startScreenShare()">Start Screen Share</button>
     <button onclick="toggleDraw()">Draw Mode</button>
     <button onclick="clearDrawing()">Clear Drawing</button>
@@ -41,19 +38,27 @@
 
     <script>
         const peer = new Peer(null, {
-            host: 'localhost',
-            port: 9000,
-            path: '/myapp'
+            host: 'localhost', // Your PeerJS server host
+            port: 9000, // Your PeerJS server port
+            path: '/peerjs', // Path to your PeerJS server
         });
 
         let localStream, conn, drawEnabled = false, isDrawing = false;
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
 
+        // Display your Peer ID
         peer.on('open', (id) => {
             document.getElementById('peer-id').innerText = id;
         });
 
+        // Handle incoming data connection
+        peer.on('connection', (dataConn) => {
+            conn = dataConn;
+            conn.on('data', handleRemoteData);
+        });
+
+        // Start screen sharing
         async function startScreenShare() {
             try {
                 localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
@@ -62,30 +67,36 @@
                 const targetId = document.getElementById('target-peer-id').value;
                 if (!targetId) return alert("Enter the viewer's Peer ID");
 
+                // Call the remote peer and send the screen stream
                 peer.call(targetId, localStream);
+
+                // Establish a data connection for drawing sync
                 conn = peer.connect(targetId);
-
-                resizeCanvas();
-
                 conn.on('open', () => {
                     conn.send({ type: 'init', width: canvas.width, height: canvas.height });
                 });
+                conn.on('data', handleRemoteData);
 
+                resizeCanvas();
             } catch (error) {
                 console.error("Error:", error);
+                alert("Failed to start screen sharing. Please check your permissions.");
             }
         }
 
+        // Toggle drawing mode
         function toggleDraw() {
             drawEnabled = !drawEnabled;
             canvas.style.pointerEvents = drawEnabled ? 'auto' : 'none';
         }
 
+        // Clear the drawing canvas
         function clearDrawing() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (conn) conn.send({ type: 'clear' });
         }
 
+        // Handle drawing events
         canvas.addEventListener('mousedown', startDraw);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', () => isDrawing = false);
@@ -110,11 +121,26 @@
 
             if (conn) conn.send({
                 type: 'draw',
-                x: x / canvas.width,
+                x: x / canvas.width, // Normalize coordinates
                 y: y / canvas.height
             });
         }
 
+        // Handle incoming data from the remote peer
+        function handleRemoteData(data) {
+            if (data.type === 'draw') {
+                const x = data.x * canvas.width;
+                const y = data.y * canvas.height;
+                ctx.fillStyle = 'blue'; // Use a different color for remote drawings
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (data.type === 'clear') {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // Resize canvas to match video size
         function resizeCanvas() {
             const video = document.getElementById('local-video');
             canvas.width = video.clientWidth;
@@ -124,5 +150,4 @@
         window.addEventListener('resize', resizeCanvas);
     </script>
 </body>
-
 </html>
