@@ -1,34 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Screen Viewer</title>
+    <title>Viewer - Screen Share with Drawing</title>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
-        #remote-video {
-            width: 100%;
-            height: auto;
-        }
-        canvas {
+        #drawingCanvas {
             position: absolute;
             top: 0;
             left: 0;
             pointer-events: none;
         }
+        video {
+            width: 100%;
+            height: auto;
+        }
         #container {
             position: relative;
-            width: 100%;
-            max-width: 1000px;
+            display: inline-block;
         }
     </style>
 </head>
-
 <body>
-
-    <h2>Viewer</h2>
+    <h2>Viewer - Screen Share with Drawing</h2>
     <p>My Peer ID: <span id="peer-id">Loading...</span></p>
+
+    <input type="text" id="host-peer-id" placeholder="Enter Host Peer ID">
+    <button onclick="connectToHost()">Connect to Host</button>
 
     <div id="container">
         <video id="remote-video" autoplay playsinline></video>
@@ -37,70 +36,70 @@
 
     <script>
         const peer = new Peer(null, {
-            host: 'localhost',
-            port: 9000,
-            path: '/myapp'
+            host: 'localhost', // Your PeerJS server host
+            port: 9000, // Your PeerJS server port
+            path: '/peerjs', // Path to your PeerJS server
         });
 
-        const video = document.getElementById('remote-video');
+        let conn;
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
-        const container = document.getElementById('container');
 
-        let originalWidth = 0, originalHeight = 0;
-
+        // Display your Peer ID
         peer.on('open', (id) => {
             document.getElementById('peer-id').innerText = id;
         });
 
+        // Handle incoming screen stream
         peer.on('call', (call) => {
-            call.answer();
+            call.answer(); // Answer the call
             call.on('stream', (remoteStream) => {
-                video.srcObject = remoteStream;
+                document.getElementById('remote-video').srcObject = remoteStream;
                 resizeCanvas();
             });
         });
 
-        peer.on('connection', (conn) => {
-            conn.on('data', (data) => {
-                if (data.type === 'init') {
-                    originalWidth = data.width;
-                    originalHeight = data.height;
-                    setAspectRatio();
-                }
-                if (data.type === 'draw') drawOnCanvas(data.x, data.y);
-                if (data.type === 'clear') clearCanvas();
-            });
+        // Handle incoming data connection
+        peer.on('connection', (dataConn) => {
+            conn = dataConn;
+            conn.on('data', handleRemoteData);
         });
 
-        function setAspectRatio() {
-            const ratio = originalWidth / originalHeight;
-            container.style.aspectRatio = ratio;
-            resizeCanvas();
+        // Connect to the host
+        function connectToHost() {
+            const hostId = document.getElementById('host-peer-id').value;
+            if (!hostId) return alert("Enter the host's Peer ID");
+
+            // Establish a data connection for drawing sync
+            conn = peer.connect(hostId);
+            conn.on('open', () => {
+                console.log("Connected to host");
+            });
+            conn.on('data', handleRemoteData);
         }
 
+        // Handle incoming data from the host
+        function handleRemoteData(data) {
+            if (data.type === 'draw') {
+                const x = data.x * canvas.width;
+                const y = data.y * canvas.height;
+                ctx.fillStyle = 'blue'; // Use a different color for host drawings
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (data.type === 'clear') {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // Resize canvas to match video size
         function resizeCanvas() {
+            const video = document.getElementById('remote-video');
             canvas.width = video.clientWidth;
             canvas.height = video.clientHeight;
         }
 
-        function drawOnCanvas(normalizedX, normalizedY) {
-            const x = normalizedX * canvas.width;
-            const y = normalizedY * canvas.height;
-
-            ctx.fillStyle = 'red';
-            ctx.beginPath();
-            ctx.arc(x, y, 5, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        function clearCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
         window.addEventListener('resize', resizeCanvas);
     </script>
-
 </body>
-
 </html>

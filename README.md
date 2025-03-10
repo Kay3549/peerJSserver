@@ -344,5 +344,5 @@ Please post any bugs as a Github issue.
 
 
 ## server start command
-peerjs --port 9000 --key peerjs --path /myapp --allow_discovery
+peerjs --port 9000 --key peerjs --path /peerjs --allow_discovery
 "# peerJSserver" 
