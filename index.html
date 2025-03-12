@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>One-Way Screen Share with Drawing</title>
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script> 
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         #drawingCanvas {
             position: absolute;
@@ -147,8 +147,10 @@
             canvas.height = video.clientHeight;
         }
 
+        // 비디오 크기가 변경될 때마다 캔버스 리사이즈
+        const video = document.getElementById('local-video');
+        video.onresize = resizeCanvas;
         window.addEventListener('resize', resizeCanvas);
     </script>
 </body>
 </html>
-

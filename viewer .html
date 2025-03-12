@@ -28,9 +28,11 @@
 
     <input type="text" id="host-peer-id" placeholder="Enter Host Peer ID">
     <button onclick="connectToHost()">Connect to Host</button>
+    <button onclick="toggleDraw()">Draw Mode</button>
+    <button onclick="clearDrawing()">Clear Drawing</button>
 
     <div id="container">
-        <video id="remote-video" autoplay playsinline></video>  
+        <video id="remote-video" autoplay playsinline></video>
         <canvas id="drawingCanvas"></canvas>
     </div>
 
@@ -41,7 +43,7 @@
             path: '/peerjs', 
         });
 
-        let conn;
+        let conn, drawEnabled = false, isDrawing = false;
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -50,7 +52,7 @@
             document.getElementById('peer-id').innerText = id;
         });
 
-        
+        // 화면 공유 스트림 수신
         peer.on('call', (call) => {
             call.answer(); // 콜에 대해 응답
             call.on('stream', (remoteStream) => {
@@ -59,18 +61,18 @@
             });
         });
 
-        
+        // 데이터 커넥션 수신
         peer.on('connection', (dataConn) => {
             conn = dataConn;
             conn.on('data', handleRemoteData);
         });
 
-        // host와 연결
+        // Host와 연결
         function connectToHost() {
             const hostId = document.getElementById('host-peer-id').value;
             if (!hostId) return alert("Enter the host's Peer ID");
 
-            // 그리기 모든 전환을 위한 데이터 커넥션 생성
+            // 데이터 커넥션 생성
             conn = peer.connect(hostId);
             conn.on('open', () => {
                 console.log("Connected to host");
@@ -78,12 +80,83 @@
             conn.on('data', handleRemoteData);
         }
 
-        // host로 부터 들어오는 데이터 핸들링
+        // 그리기 모드로 전환
+        function toggleDraw() {
+            drawEnabled = !drawEnabled;
+            canvas.style.pointerEvents = drawEnabled ? 'auto' : 'none';
+        }
+
+        // 캔버스 초기화
+        function clearDrawing() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (conn) conn.send({ type: 'clear' });
+        }
+
+        // 드로잉 이벤트 다루기 (마우스 및 터치)
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', () => isDrawing = false);
+        canvas.addEventListener('mouseleave', () => isDrawing = false);
+
+        canvas.addEventListener('touchstart', startDrawTouch);
+        canvas.addEventListener('touchmove', drawTouch);
+        canvas.addEventListener('touchend', () => isDrawing = false);
+
+        function startDraw(e) {
+            if (!drawEnabled) return;
+            isDrawing = true;
+            draw(e);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            ctx.fillStyle = 'green'; // 클라이언트가 쓰는 색깔
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (conn) conn.send({
+                type: 'draw',
+                x: x / canvas.width, // 좌표 정규화
+                y: y / canvas.height
+            });
+        }
+
+        function startDrawTouch(e) {
+            if (!drawEnabled) return;
+            isDrawing = true;
+            drawTouch(e);
+        }
+
+        function drawTouch(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0]; // 첫 번째 터치 포인트
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+
+            ctx.fillStyle = 'green'; // 클라이언트가 쓰는 색깔
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (conn) conn.send({
+                type: 'draw',
+                x: x / canvas.width, // 좌표 정규화
+                y: y / canvas.height
+            });
+        }
+
+        // Host로부터 들어오는 데이터 핸들링
         function handleRemoteData(data) {
             if (data.type === 'draw') {
                 const x = data.x * canvas.width;
                 const y = data.y * canvas.height;
-                ctx.fillStyle = 'blue'; // 호스트가 쓰는 색깔과 다른 색
+                ctx.fillStyle = 'blue'; // 호스트가 쓰는 색깔
                 ctx.beginPath();
                 ctx.arc(x, y, 5, 0, Math.PI * 2);
                 ctx.fill();
@@ -99,6 +172,9 @@
             canvas.height = video.clientHeight;
         }
 
+        // 비디오 크기가 변경될 때마다 캔버스 리사이즈
+        const video = document.getElementById('remote-video');
+        video.onresize = resizeCanvas;
         window.addEventListener('resize', resizeCanvas);
     </script>
 </body>
