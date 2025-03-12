@@ -38,39 +38,39 @@
 
     <script>
         const peer = new Peer(null, {
-            host: 'localhost', // Your PeerJS server host
-            port: 9000, // Your PeerJS server port
-            path: '/peerjs', // Path to your PeerJS server
+            host: 'localhost', // 내 peer 서버 주소
+            port: 9000, // 포트
+            path: '/peerjs', // PeerJS server
         });
 
         let localStream, conn, drawEnabled = false, isDrawing = false;
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Display your Peer ID
+        // 내 Peer ID 화면에 표시
         peer.on('open', (id) => {
             document.getElementById('peer-id').innerText = id;
         });
 
-        // Handle incoming data connection
+        // 데이터 커넥션 핸들링
         peer.on('connection', (dataConn) => {
             conn = dataConn;
             conn.on('data', handleRemoteData);
         });
 
-        // Start screen sharing
+        // 화면공유 시작
         async function startScreenShare() {
             try {
                 localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
                 document.getElementById('local-video').srcObject = localStream;
 
                 const targetId = document.getElementById('target-peer-id').value;
-                if (!targetId) return alert("Enter the viewer's Peer ID");
+                if (!targetId) return alert("화면 공유 대상자의 Peer ID를 입력하세요");
 
-                // Call the remote peer and send the screen stream
+                // 원격 peer 호출 이후 화면 스트림 전송
                 peer.call(targetId, localStream);
 
-                // Establish a data connection for drawing sync
+                // 데이터 커넥션 설정. 
                 conn = peer.connect(targetId);
                 conn.on('open', () => {
                     conn.send({ type: 'init', width: canvas.width, height: canvas.height });
@@ -79,24 +79,24 @@
 
                 resizeCanvas();
             } catch (error) {
-                console.error("Error:", error);
-                alert("Failed to start screen sharing. Please check your permissions.");
+                console.error("에러:", error);
+                alert("화면공유에 실패했습니다.");
             }
         }
 
-        // Toggle drawing mode
+        // 그리기 모드로 전환
         function toggleDraw() {
             drawEnabled = !drawEnabled;
             canvas.style.pointerEvents = drawEnabled ? 'auto' : 'none';
         }
 
-        // Clear the drawing canvas
+        // 드로잉 캔버스 클리어
         function clearDrawing() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (conn) conn.send({ type: 'clear' });
         }
 
-        // Handle drawing events
+        // 드로잉 이벤트 핸들링 부분
         canvas.addEventListener('mousedown', startDraw);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', () => isDrawing = false);
@@ -121,17 +121,17 @@
 
             if (conn) conn.send({
                 type: 'draw',
-                x: x / canvas.width, // Normalize coordinates
+                x: x / canvas.width, // 좌표 정규화
                 y: y / canvas.height
             });
         }
 
-        // Handle incoming data from the remote peer
+        // 원격 peer에서 들어오는 데이터 핸들링
         function handleRemoteData(data) {
             if (data.type === 'draw') {
                 const x = data.x * canvas.width;
                 const y = data.y * canvas.height;
-                ctx.fillStyle = 'blue'; // Use a different color for remote drawings
+                ctx.fillStyle = 'blue'; // 고객 쪽에서는 다른 색으로 표시
                 ctx.beginPath();
                 ctx.arc(x, y, 5, 0, Math.PI * 2);
                 ctx.fill();
@@ -140,7 +140,7 @@
             }
         }
 
-        // Resize canvas to match video size
+        // 캔버스를 비디오 사이즈에 맞게 조정
         function resizeCanvas() {
             const video = document.getElementById('local-video');
             canvas.width = video.clientWidth;
