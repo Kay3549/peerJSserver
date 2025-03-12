@@ -36,41 +36,41 @@
 
     <script>
         const peer = new Peer(null, {
-            host: 'localhost', // Your PeerJS server host
-            port: 9000, // Your PeerJS server port
-            path: '/peerjs', // Path to your PeerJS server
+            host: 'localhost', 
+            port: 9000, 
+            path: '/peerjs', 
         });
 
         let conn;
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Display your Peer ID
+        // 내 Peer ID 표시
         peer.on('open', (id) => {
             document.getElementById('peer-id').innerText = id;
         });
 
-        // Handle incoming screen stream
+        
         peer.on('call', (call) => {
-            call.answer(); // Answer the call
+            call.answer(); // 콜에 대해 응답
             call.on('stream', (remoteStream) => {
                 document.getElementById('remote-video').srcObject = remoteStream;
                 resizeCanvas();
             });
         });
 
-        // Handle incoming data connection
+        
         peer.on('connection', (dataConn) => {
             conn = dataConn;
             conn.on('data', handleRemoteData);
         });
 
-        // Connect to the host
+        // host와 연결
         function connectToHost() {
             const hostId = document.getElementById('host-peer-id').value;
             if (!hostId) return alert("Enter the host's Peer ID");
 
-            // Establish a data connection for drawing sync
+            // 그리기 모든 전환을 위한 데이터 커넥션 생성
             conn = peer.connect(hostId);
             conn.on('open', () => {
                 console.log("Connected to host");
@@ -78,12 +78,12 @@
             conn.on('data', handleRemoteData);
         }
 
-        // Handle incoming data from the host
+        // host로 부터 들어오는 데이터 핸들링
         function handleRemoteData(data) {
             if (data.type === 'draw') {
                 const x = data.x * canvas.width;
                 const y = data.y * canvas.height;
-                ctx.fillStyle = 'blue'; // Use a different color for host drawings
+                ctx.fillStyle = 'blue'; // 호스트가 쓰는 색깔과 다른 색
                 ctx.beginPath();
                 ctx.arc(x, y, 5, 0, Math.PI * 2);
                 ctx.fill();
@@ -92,7 +92,7 @@
             }
         }
 
-        // Resize canvas to match video size
+        // 화면 공유 비디오 사이즈에 맞게 캔버스도 리사이징
         function resizeCanvas() {
             const video = document.getElementById('remote-video');
             canvas.width = video.clientWidth;

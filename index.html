@@ -24,9 +24,9 @@
 </head>
 <body>
     <h2>Screen Sharing with Drawing</h2>
-    <p>My Peer ID: <span id="peer-id">Loading...</span></p>
+    <p>My Peer ID: <span id="peer-id">로딩 중...</span></p>
 
-    <input type="text" id="target-peer-id" placeholder="Enter Viewer Peer ID">
+    <input type="text" id="target-peer-id" placeholder="Viewer Peer ID입력">
     <button onclick="startScreenShare()">Start Screen Share</button>
     <button onclick="toggleDraw()">Draw Mode</button>
     <button onclick="clearDrawing()">Clear Drawing</button>
@@ -38,27 +38,27 @@
 
     <script>
         const peer = new Peer(null, {
-            host: 'localhost', // Your PeerJS server host
-            port: 9000, // Your PeerJS server port
-            path: '/peerjs', // Path to your PeerJS server
+            host: 'localhost', // 내 PeerJS server 호스트
+            port: 9000, // 내 PeerJS server 포트
+            path: '/peerjs', // 내 PeerJS server 경로
         });
 
         let localStream, conn, drawEnabled = false, isDrawing = false;
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Display your Peer ID
+        // 내 Peer ID 표시
         peer.on('open', (id) => {
             document.getElementById('peer-id').innerText = id;
         });
 
-        // Handle incoming data connection
+        // 들어오는 데이터 커넥션 핸들링 부분.
         peer.on('connection', (dataConn) => {
             conn = dataConn;
             conn.on('data', handleRemoteData);
         });
 
-        // Start screen sharing
+        // 화면 공유 시작 부분
         async function startScreenShare() {
             try {
                 localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
@@ -67,10 +67,10 @@
                 const targetId = document.getElementById('target-peer-id').value;
                 if (!targetId) return alert("Enter the viewer's Peer ID");
 
-                // Call the remote peer and send the screen stream
+                // 원격 peer 호출, 화면 스트림 보내기
                 peer.call(targetId, localStream);
 
-                // Establish a data connection for drawing sync
+                // 그리기 모든 전환을 위한 데이터 커넥션 연결
                 conn = peer.connect(targetId);
                 conn.on('open', () => {
                     conn.send({ type: 'init', width: canvas.width, height: canvas.height });
@@ -121,7 +121,7 @@
 
             if (conn) conn.send({
                 type: 'draw',
-                x: x / canvas.width, // Normalize coordinates
+                x: x / canvas.width, // 좌표 정규화
                 y: y / canvas.height
             });
         }
