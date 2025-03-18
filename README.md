@@ -348,6 +348,10 @@ peerjs --port 9000 --key peerjs --path /peerjs --allow_discovery
 ngrok start --all --config=C:\setting\tools\ngrok.yml
 
 ## EC2 login command
-1. ssh -i your-key.pem ubuntu@your-ec2-ip (ssh키 없을 때)
-2. ssh ubuntu@enter your EC2 public ip (ssh키 등록되어있을 때)
+1.  ssh -i your-key.pem ubuntu@your-ec2-ip (ssh키 없을 때)
+2.  ssh ubuntu@enter your EC2 public ip (ssh키 등록되어있을 때)
+
+## Commands that i usually use
+1. cat ~/.ssh/id_rsa (check my RSA private key)
+
 
