@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,16 +13,19 @@
             left: 0;
             pointer-events: none;
         }
+
         video {
             width: 100%;
             height: auto;
         }
+
         #container {
             position: relative;
             display: inline-block;
         }
     </style>
 </head>
+
 <body>
     <h2>Screen Sharing with Drawing</h2>
     <p>My Peer ID: <span id="peer-id">로딩 중...</span></p>
@@ -38,10 +42,12 @@
 
     <script>
         const peer = new Peer(null, {
-            host: 'localhost', // 내 PeerJS server 호스트
-            port: 9000, // 내 PeerJS server 포트
-            path: '/peerjs', // 내 PeerJS server 경로
+            host: "3.39.223.39",  // Use your EC2 public IP
+            port: 443,            // HTTPS
+            path: '/peerjs',
+            secure: true
         });
+
 
         let localStream, conn, drawEnabled = false, isDrawing = false;
         const canvas = document.getElementById('drawingCanvas');
@@ -153,4 +159,5 @@
         window.addEventListener('resize', resizeCanvas);
     </script>
 </body>
+
 </html>

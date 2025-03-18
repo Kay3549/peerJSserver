@@ -345,4 +345,8 @@ Please post any bugs as a Github issue.
 
 ## server start command
 peerjs --port 9000 --key peerjs --path /peerjs --allow_discovery
+ngrok start --all --config=C:\setting\tools\ngrok.yml
+
+## EC2 login command
+ssh -i your-key.pem ubuntu@your-ec2-ip 
 "# peerJSserver" 
