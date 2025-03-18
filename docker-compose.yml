@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx-container
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./html:/usr/share/nginx/html:ro
+      - /etc/letsencrypt/live/your-ec2-public-ip:/etc/nginx/ssl:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - peer-server
+    restart: always
+
+  peer-server:
+    image: peer-server
+    container_name: peer-container
+    build:
+      context: .
+    ports:
+      - "9000:9000"
+    restart: always
