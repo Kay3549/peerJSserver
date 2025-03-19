@@ -106,7 +106,7 @@
 		"mock-socket": "^9.1.5",
 		"parcel": "~2.13.0",
 		"postcss": "^8.5.3",
-		"prettier": "^3.0.0",
+		"prettier": "^3.5.3",
 		"semantic-release": "^22.0.0",
 		"tailwindcss": "^4.0.11",
 		"typescript": "^5.1.6"
