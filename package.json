@@ -61,7 +61,8 @@
 		"module": {}
 	},
 	"scripts": {
-		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"format:write": "prettier --write .""format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"build": "parcel build",
 		"lint": "eslint --ext .js,.ts . && npm run check",
