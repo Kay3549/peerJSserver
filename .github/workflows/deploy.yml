@@ -31,20 +31,42 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
+          chmod 700 ~/.ssh
           
-          # Write the SSH key to a file
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/private_key
+          # Add EC2 to known hosts safely
+          ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} 2>/dev/null >> ~/.ssh/known_hosts || echo "Warning: ssh-keyscan failed"
+          chmod 600 ~/.ssh/known_hosts
+
+          # Write the SSH key properly
+          cat <<EOF > ~/.ssh/private_key
+          ${{ secrets.EC2_SSH_KEY }}
+          EOF
           chmod 400 ~/.ssh/private_key
       
       - name: Deploy to EC2
         run: |
           ssh -i ~/.ssh/private_key -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            cd ~/peerJSserver
-            git pull origin main
-            docker stop peer-container || true
-            docker rm peer-container || true
-            docker build -t peer-server .
-            docker run -d --rm --name peer-container -p 9000:9000 peer-server
+            set -e  # Exit immediately if a command fails
+            echo "✅ Connected to EC2"
+
+            # Move to project directory
+            cd ~/peerJSserver || { echo "❌ ERROR: Directory not found"; exit 1; }
+
+            # Pull latest changes
+            echo "🔄 Pulling latest code..."
+            git pull origin main || { echo "❌ ERROR: Git pull failed"; exit 1; }
+
+            # Stop and remove existing container safely
+            echo "🛑 Stopping existing container if running..."
+            docker stop peer-container 2>/dev/null || echo "No existing container to stop"
+            docker rm peer-container 2>/dev/null || echo "No existing container to remove"
+
+            # Build and run the new container
+            echo "🚀 Building Docker image..."
+            docker build -t peer-server . || { echo "❌ ERROR: Docker build failed"; exit 1; }
+
+            echo "🎯 Running new container..."
+            docker run -d --rm --name peer-container -p 9000:9000 peer-server || { echo "❌ ERROR: Docker run failed"; exit 1; }
+
+            echo "✅ Deployment successful!"
           EOF
