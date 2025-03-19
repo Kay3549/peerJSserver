@@ -14,16 +14,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4 
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 18  # Use Node.js 18
           cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
+      - name: List installed dependencies
+        run: npm list  # Print installed dependencies
+
       - name: Fix formatting
-        run: npm run format:write
+        run: npx prettier --write .  # Use npx to ensure Prettier is found
 
       - name: Run Prettier check
-        run: npm run format:check
+        run: npx prettier --check .  # Use npx to ensure Prettier is found
