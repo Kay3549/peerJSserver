@@ -3,7 +3,9 @@ name: Check JavaScript for conformance with Prettier
 
 on:
   push:
+    branches: ["main"]  # Add branch name to trigger only on main
   pull_request:
+    branches: ["main"]  # Add branch name to trigger only on main
 
 jobs:
   prettier:
@@ -11,11 +13,18 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
-          cache: "npm"
-      - run: npm ci
-      - name: Run prettier
-        run: |-
-          npm run format:check
+          node-version: 16  # Use Node.js 16
+          cache: "npm"       # Cache npm dependencies
+
+      - name: Install dependencies
+        run: npm ci          # Clean install dependencies
+
+      - name: Fix formatting
+        run: npm run format:write  # Automatically fix formatting issues
+
+      - name: Run Prettier check
+        run: npm run format:check  # Check for formatting issues
