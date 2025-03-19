@@ -1,11 +1,10 @@
-# From https://til.simonwillison.net/github-actions/prettier-github-actions
 name: Check JavaScript for conformance with Prettier
 
 on:
   push:
-    branches: ["main"]  # Add branch name to trigger only on main
+    branches: ["main"]
   pull_request:
-    branches: ["main"]  # Add branch name to trigger only on main
+    branches: ["main"]
 
 jobs:
   prettier:
@@ -15,16 +14,16 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4 
         with:
-          node-version: 16  # Use Node.js 16
-          cache: "npm"       # Cache npm dependencies
+          node-version: 16
+          cache: "npm"
 
       - name: Install dependencies
-        run: npm ci          # Clean install dependencies
+        run: npm ci
 
       - name: Fix formatting
-        run: npm run format:write  # Automatically fix formatting issues
+        run: npm run format:write
 
       - name: Run Prettier check
-        run: npm run format:check  # Check for formatting issues
+        run: npm run format:check
