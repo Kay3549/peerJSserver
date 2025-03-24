@@ -23,6 +23,15 @@
             position: relative;
             display: inline-block;
         }
+
+        .box {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 2px solid red;
+            pointer-events: none;
+            display: none;
+        }
     </style>
 </head>
 
@@ -36,8 +45,9 @@
     <button onclick="clearDrawing()">Clear Drawing</button>
 
     <div id="container">
-        <video id="local-video" autoplay playsinline muted></video> 
+        <video id="local-video" autoplay playsinline muted></video>
         <canvas id="drawingCanvas"></canvas>
+        <div id="highlightBox" class="box"></div>
     </div>
 
     <script>
@@ -48,10 +58,10 @@
             secure: true
         });
 
-
         let localStream, conn, drawEnabled = false, isDrawing = false;
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
+        const highlightBox = document.getElementById('highlightBox');
 
         // 내 Peer ID 표시
         peer.on('open', (id) => {
@@ -84,6 +94,20 @@
                 conn.on('data', handleRemoteData);
 
                 resizeCanvas();
+                
+                // Show highlight box in top-right corner
+                highlightBox.style.display = 'block';
+                highlightBox.style.top = '20px';
+                highlightBox.style.right = '20px';
+                
+                if (conn) {
+                    conn.send({
+                        type: 'box',
+                        show: true,
+                        top: '20px',
+                        right: '20px'
+                    });
+                }
             } catch (error) {
                 console.error("에러:", error);
                 alert("화면 공유에 실패했습니다.");
@@ -143,6 +167,10 @@
                 ctx.fill();
             } else if (data.type === 'clear') {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+            } else if (data.type === 'box') {
+                highlightBox.style.display = data.show ? 'block' : 'none';
+                highlightBox.style.top = data.top;
+                highlightBox.style.right = data.right;
             }
         }
 
