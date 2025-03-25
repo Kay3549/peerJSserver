@@ -1,20 +1,23 @@
-FROM --platform=$BUILDPLATFORM docker.io/library/node:18.20.7 as build
-ARG TARGETPLATFORM
-ARG BUILDPLATFORM
-RUN mkdir /peer-server
-WORKDIR /peer-server
-COPY package.json package-lock.json ./
-RUN npm clean-install
-COPY . ./
-RUN npm run build
-RUN npm run test
+# Use Node.js LTS version
+FROM node:18-alpine
 
-FROM docker.io/library/node:18.20.7-alpine as production
-RUN mkdir /peer-server
-WORKDIR /peer-server
-COPY package.json package-lock.json ./
-RUN npm clean-install --omit=dev
-COPY --from=build /peer-server/dist/bin/peerjs.js ./
-ENV PORT 9000
-EXPOSE ${PORT}
-ENTRYPOINT ["node", "peerjs.js"]
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy application files
+COPY . .
+
+# Build the application (if needed)
+RUN npm run build
+
+# Expose port (adjust as needed)
+EXPOSE 3000
+
+# Start the application
+CMD ["npm", "start"]

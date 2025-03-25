@@ -1,72 +1,74 @@
-name: Deploy to AWS EC2
+name: Deploy to K3s
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+
+env:
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com
+  ECR_REPOSITORY: peerjs-server  # Replace with your repository name
+  IMAGE_TAG: ${{ github.sha }}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: "npm"
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-2  # Seoul region
 
-      - name: Install dependencies
-        run: npm ci
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Fix formatting
-        run: npx prettier --write .
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
-      - name: Check formatting
-        run: npx prettier --check .
+    - name: Update kubeconfig
+      run: |
+        echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
+        export KUBECONFIG=kubeconfig.yaml
 
-      - name: Set up SSH
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          
-          # Add EC2 to known hosts safely
-          ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} 2>/dev/null >> ~/.ssh/known_hosts || echo "Warning: ssh-keyscan failed"
-          chmod 600 ~/.ssh/known_hosts
+    - name: Deploy to k3s
+      run: |
+        sed -i "s|\${ECR_REGISTRY}|$ECR_REGISTRY|g" deployment.yaml
+        sed -i "s|\${ECR_REPOSITORY}|$ECR_REPOSITORY|g" deployment.yaml
+        sed -i "s|\${IMAGE_TAG}|$IMAGE_TAG|g" deployment.yaml
+        kubectl apply -f deployment.yaml
 
-          # Write the SSH key properly
-          cat <<EOF > ~/.ssh/private_key
-          ${{ secrets.EC2_SSH_KEY }}
-          EOF
-          chmod 400 ~/.ssh/private_key
-      
-      - name: Deploy to EC2
-        run: |
-          ssh -i ~/.ssh/private_key -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            set -e  # Exit immediately if a command fails
-            echo "✅ Connected to EC2"
+    - name: Get your EC2's public IP
+      id: get-public-ip
+      run: |
+        PUBLIC_IP=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
+        echo "PUBLIC_IP=$PUBLIC_IP"
 
-            # Move to project directory
-            cd ~/peerJSserver || { echo "❌ ERROR: Directory not found"; exit 1; }
+    - name: Update the server address in the kubeconfig
+      run: |
+        sudo sed -i "s/127.0.0.1/$PUBLIC_IP/" ~/.kube/config
 
-            # Pull latest changes
-            echo "🔄 Pulling latest code..."
-            git pull origin main || { echo "❌ ERROR: Git pull failed"; exit 1; }
+    - name: Check the content of your kubeconfig
+      run: |
+        cat ~/.kube/config
 
-            # Stop and remove existing container safely
-            echo "🛑 Stopping existing container if running..."
-            docker stop peer-container 2>/dev/null || echo "No existing container to stop"
-            docker rm peer-container 2>/dev/null || echo "No existing container to remove"
+    - name: Try with curl
+      run: |
+        curl --insecure https://localhost:6443/version
 
-            # Build and run the new container
-            echo "🚀 Building Docker image..."
-            docker build -t peer-server . || { echo "❌ ERROR: Docker build failed"; exit 1; }
+    - name: Check if the API server port is listening
+      run: |
+        sudo netstat -tlpn | grep 6443
 
-            echo "🎯 Running new container..."
-            docker run -d --rm --name peer-container -p 9000:9000 peer-server || { echo "❌ ERROR: Docker run failed"; exit 1; }
-
-            echo "✅ Deployment successful!"
-          EOF
+    - name: Try with k3s kubectl
+      run: |
+        sudo /usr/local/bin/k3s kubectl get nodes
