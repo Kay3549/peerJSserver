@@ -22,7 +22,7 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy built application and installed dependencies from the builder stage
+# Copy built application and installed dependencies from the builder stage 
 COPY --from=builder /app /app
 
 # Set environment variable for production
