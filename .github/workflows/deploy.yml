@@ -1,4 +1,4 @@
-name: Deploy to ECR
+name: Deploy to ECR and Kubernetes
 
 on:
   push:
@@ -32,3 +32,19 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Set up Kubernetes
+        uses: azure/setup-kubectl@v1
+        with:
+          version: 'latest'
+
+      - name: Deploy to Kubernetes
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: latest
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" > kubeconfig.yaml
+          kubectl --kubeconfig=kubeconfig.yaml apply -f deployment.yaml
+          kubectl --kubeconfig=kubeconfig.yaml set image deployment/my-app my-app=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
