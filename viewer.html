@@ -42,10 +42,10 @@
 
     <script>
         const peer = new Peer(null, {
-            host: "3.36.51.127",  // Your EC2 public IP
-            port: 80,             // Changed from 443 to 80
+            host: "3.36.51.127",
+            port: 443,
             path: '/peerjs',
-            secure: false         // Changed from true to false for HTTP
+            secure: true  // Set to true for HTTPS
         });
 
 

@@ -23,13 +23,15 @@ spec:
         env:
         - name: PORT
           value: "9000"
-        resources:
-          limits:
-            cpu: 500m
-            memory: 512Mi
-          requests:
-            cpu: 200m
-            memory: 256Mi
+        - name: HTTPS
+          value: "true"
+        volumeMounts:
+        - name: static-files
+          mountPath: /app/public
+      volumes:
+      - name: static-files
+        configMap:
+          name: static-files
 ---
 apiVersion: v1
 kind: Service
@@ -38,7 +40,7 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - port: 80
+  - port: 443
     targetPort: 9000
   selector:
     app: my-app
