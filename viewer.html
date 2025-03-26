@@ -41,11 +41,11 @@
     </div>
 
     <script>
-         const peer = new Peer(null, {
-            host: "3.36.51.127",  // Use your EC2 public IP
-            port: 443,            // HTTPS
+        const peer = new Peer(null, {
+            host: "3.36.51.127",  // Your EC2 public IP
+            port: 80,             // Changed from 443 to 80
             path: '/peerjs',
-            secure: true
+            secure: false         // Changed from true to false for HTTP
         });
 
 

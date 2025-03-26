@@ -13,13 +13,16 @@ spec:
         app: my-app
     spec:
       imagePullSecrets:
-      - name: ecr-secret      # Add this section
+      - name: ecr-secret
       containers:
       - name: my-app
         image: 124355666784.dkr.ecr.ap-northeast-2.amazonaws.com/peerjs-server:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 3000
+        - containerPort: 9000
+        env:
+        - name: PORT
+          value: "9000"
         resources:
           limits:
             cpu: 500m
@@ -35,7 +38,7 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - port: 443
-    targetPort: 3000
+  - port: 80
+    targetPort: 9000
   selector:
     app: my-app
