@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: my-app
-        image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+        image: 124355666784.dkr.ecr.ap-northeast-2.amazonaws.com/peerjs-server:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
