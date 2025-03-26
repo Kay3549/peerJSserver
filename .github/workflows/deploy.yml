@@ -6,7 +6,7 @@ on:
 
 env:
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com
-  ECR_REPOSITORY: your-repo-name
+  ECR_REPOSITORY: peerjs-server
   IMAGE_TAG: latest
 
 jobs:
