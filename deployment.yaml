@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: my-app
-  namespace: default
 spec:
   replicas: 2
   selector:
@@ -13,6 +12,8 @@ spec:
       labels:
         app: my-app
     spec:
+      imagePullSecrets:
+      - name: ecr-secret      # Add this section
       containers:
       - name: my-app
         image: 124355666784.dkr.ecr.ap-northeast-2.amazonaws.com/peerjs-server:latest
@@ -21,11 +22,11 @@ spec:
         - containerPort: 3000
         resources:
           limits:
-            cpu: "500m"
-            memory: "512Mi"
+            cpu: 500m
+            memory: 512Mi
           requests:
-            cpu: "200m"
-            memory: "256Mi"
+            cpu: 200m
+            memory: 256Mi
 ---
 apiVersion: v1
 kind: Service
