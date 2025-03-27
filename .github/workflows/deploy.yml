@@ -37,18 +37,15 @@ jobs:
 
     - name: Setup kubectl
       run: |
-        echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
+        echo "${{ secrets.KUBECONFIG_DATA }}" | base64 -d > kubeconfig.yaml
         chmod 600 kubeconfig.yaml
+      env:
+        KUBECONFIG: kubeconfig.yaml
 
-    - name: Deploy to k3s
+    - name: Deploy to K3s
       run: |
-        echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
-        chmod 600 kubeconfig.yaml
-        
-        # Replace the image placeholder in deployment.yaml
-        sed -i "s|image:.*|image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG|" deployment.yaml
+        # Update the image in deployment.yaml
+        sed -i "s|image: .*|image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG|g" deployment.yaml
         
         # Apply the deployment
         kubectl --kubeconfig=kubeconfig.yaml apply -f deployment.yaml
-      env:
-        KUBECONFIG: kubeconfig.yaml
