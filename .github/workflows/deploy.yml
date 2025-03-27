@@ -1,4 +1,4 @@
-name: Deploy to EKS
+name: Deploy to K3s
 
 on:
   push:
@@ -8,8 +8,6 @@ env:
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com
   ECR_REPOSITORY: peerjs-server
   IMAGE_TAG: latest
-  CLUSTER_NAME: peerjs-cluster
-  AWS_REGION: ap-northeast-2
 
 jobs:
   deploy:
@@ -19,47 +17,35 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Modern AWS auth (recommended over static keys)
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
+      uses: aws-actions/configure-aws-credentials@v1
       with:
-        role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}  # For OIDC
-        aws-region: ${{ env.AWS_REGION }}
-        role-session-name: GitHubActions-Deploy
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-2
 
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
     - name: Build and push Docker image
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v2
       with:
         context: .
         push: true
         tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
 
-    # Dynamic kubeconfig generation (more secure than static file)
-    - name: Configure Kubernetes Access
+    - name: Setup kubectl
       run: |
-        aws eks update-kubeconfig \
-          --name ${{ env.CLUSTER_NAME }} \
-          --region ${{ env.AWS_REGION }} \
-          --kubeconfig kubeconfig.yaml
-        kubectl config view --kubeconfig=kubeconfig.yaml
+        echo "${{ secrets.KUBECONFIG_DATA }}" | base64 -d > kubeconfig.yaml
+        chmod 600 kubeconfig.yaml
+      env:
+        KUBECONFIG: kubeconfig.yaml
 
-    - name: Deploy to EKS
+    - name: Deploy to K3s
       run: |
         # Update the image in deployment.yaml
-        sed -i "s|image: .*|image: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}|g" deployment.yaml
+        sed -i "s|image: .*|image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG|g" deployment.yaml
         
-        # Apply with validation and rollout status
+        # Apply the deployment
         kubectl --kubeconfig=kubeconfig.yaml apply -f deployment.yaml
-        kubectl --kubeconfig=kubeconfig.yaml rollout status deployment/peerjs-server --timeout=90s
-
-    # Verification step
-    - name: Verify Deployment
-      run: |
-        kubectl --kubeconfig=kubeconfig.yaml get pods -o wide
-        kubectl --kubeconfig=kubeconfig.yaml get svc
