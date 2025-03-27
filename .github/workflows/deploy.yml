@@ -14,11 +14,15 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    # Modern AWS authentication
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
@@ -30,7 +34,7 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    # Set up Docker Buildx properly
+    # Proper Buildx setup
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
       with:
@@ -45,17 +49,45 @@ jobs:
         tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-        platforms: linux/amd64  # Add specific platform if needed
+        platforms: linux/amd64
 
-    - name: Configure Kubernetes Access
+    # Verify ECR image exists
+    - name: Verify ECR image
+      run: |
+        aws ecr describe-images \
+          --repository-name ${{ env.ECR_REPOSITORY }} \
+          --image-ids imageTag=${{ env.IMAGE_TAG }} \
+          --region ${{ env.AWS_REGION }}
+
+    # Configure Kubernetes access
+    - name: Configure kubectl
       run: |
         aws eks update-kubeconfig \
           --name ${{ env.CLUSTER_NAME }} \
           --region ${{ env.AWS_REGION }}
         kubectl get nodes
 
+    # Deploy with comprehensive checks
     - name: Deploy to EKS
       run: |
+        # Update image in deployment
         sed -i "s|image: .*|image: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}|g" deployment.yaml
-        kubectl apply -f deployment.yaml --validate=false
-        kubectl rollout status deployment/my-app --timeout=90s
+        
+        # Create ECR pull secret
+        kubectl create secret docker-registry ecr-secret \
+          --docker-server=${{ env.ECR_REGISTRY }} \
+          --docker-username=AWS \
+          --docker-password=$(aws ecr get-login-password --region ${{ env.AWS_REGION }}) \
+          --dry-run=client -o yaml | kubectl apply -f -
+        
+        # Apply deployment
+        kubectl apply -f deployment.yaml
+        kubectl rollout status deployment/my-app --timeout=300s
+
+    # Verification steps
+    - name: Verify deployment
+      run: |
+        kubectl get deployments -o wide
+        kubectl get pods -o wide
+        kubectl get svc
+        kubectl get events --sort-by=.metadata.creationTimestamp
