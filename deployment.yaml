@@ -12,8 +12,6 @@ spec:
       labels:
         app: my-app
     spec:
-      imagePullSecrets:
-      - name: ecr-secret
       containers:
       - name: my-app
         image: 124355666784.dkr.ecr.ap-northeast-2.amazonaws.com/peerjs-server:latest
