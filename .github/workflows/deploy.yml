@@ -1,5 +1,5 @@
 name: Deploy to ECR and k3s
-on: [push]   # Triggers on git push
+on: [push]
 
 jobs:
   deploy:
@@ -8,25 +8,31 @@ jobs:
       # Step 1: Checkout code
       - uses: actions/checkout@v2
 
-      # Step 2: Login to Amazon ECR
+      # Step 2: Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      # Step 3: Login to ECR
       - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v1
-        with:
-          region: ap-northeast-2
 
-      # Step 3: Build, tag, and push to ECR
+      # Step 4: Build and push
       - name: Build and Push Docker Image
         run: |
           docker build -t my-app .
           docker tag my-app:latest ${{ secrets.ECR_REGISTRY }}/my-app:latest
           docker push ${{ secrets.ECR_REGISTRY }}/my-app:latest
 
-      # Step 4: SSH into EC2 and update k3s deployment
+      # Step 5: Deploy to k3s
       - name: Deploy to k3s
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.SSH_HOST }}      # EC2 public IP
+          host: ${{ secrets.SSH_HOST }}
           username: ubuntu
-          key: ${{ secrets.SSH_PRIVATE_KEY }} # Base64-encoded key
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             kubectl set image deployment/my-app my-app=${{ secrets.ECR_REGISTRY }}/my-app:latest
