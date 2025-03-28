@@ -52,10 +52,10 @@
 
     <script>
         const peer = new Peer(null, {
-            host: "3.39.223.39",  // Use your EC2 public IP
-            port: 443,            // HTTPS
+            host: "localhost",  
+            port: 9000,       
             path: '/peerjs',
-            secure: true
+            secure: false
         });
 
         let localStream, conn, drawEnabled = false, isDrawing = false;
@@ -88,26 +88,29 @@
 
                 // 그리기 모든 전환을 위한 데이터 커넥션 연결
                 conn = peer.connect(targetId);
+                
+                // Wait for connection to be established before sending messages
                 conn.on('open', () => {
+                    // Initialize canvas
                     conn.send({ type: 'init', width: canvas.width, height: canvas.height });
-                });
-                conn.on('data', handleRemoteData);
-
-                resizeCanvas();
-                
-                // Show highlight box in top-right corner
-                highlightBox.style.display = 'block';
-                highlightBox.style.top = '20px';
-                highlightBox.style.right = '20px';
-                
-                if (conn) {
+                    
+                    // Show highlight box in both windows
+                    highlightBox.style.display = 'block';
+                    highlightBox.style.top = '20px';
+                    highlightBox.style.right = '20px';
+                    
+                    // Send box info to viewer
                     conn.send({
                         type: 'box',
                         show: true,
                         top: '20px',
                         right: '20px'
                     });
-                }
+                });
+
+                conn.on('data', handleRemoteData);
+                resizeCanvas();
+
             } catch (error) {
                 console.error("에러:", error);
                 alert("화면 공유에 실패했습니다.");
