@@ -33,6 +33,6 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             kubectl set image deployment/my-app my-app=${{ secrets.ECR_REGISTRY }}/my-app:latest
