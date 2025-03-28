@@ -31,18 +31,23 @@ jobs:
       - name: Deploy to k3s
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.SSH_HOST }}
+          host: 54.180.137.45
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script_stop: true
           debug: true
+          timeout: 60s
           script: |
             mkdir -p ~/.ssh
-            echo -e "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
             chmod 600 ~/.ssh/id_rsa
-            ls -la ~/.ssh/
-            cat ~/.ssh/id_rsa | head -n 1
+            chmod 700 ~/.ssh
+            ssh-keyscan -H 54.180.137.45 >> ~/.ssh/known_hosts
+            echo "Testing SSH connection..."
+            ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@54.180.137.45 "echo 'SSH connection successful'"
+            echo "Setting up kubectl..."
             mkdir -p ~/.kube
             sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
             sudo chown $USER:$USER ~/.kube/config
+            echo "Updating deployment..."
             kubectl set image deployment/my-app my-app=${{ secrets.ECR_REGISTRY }}/my-app:latest
