@@ -3,12 +3,7 @@ kind: Deployment
 metadata:
   name: my-app
 spec:
-  replicas: 2
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
-    type: RollingUpdate
+  replicas: 2                # Number of pods
   selector:
     matchLabels:
       app: my-app
@@ -17,59 +12,10 @@ spec:
       labels:
         app: my-app
     spec:
-      imagePullSecrets:
-      - name: ecr-secret
       containers:
       - name: my-app
-        image: 124355666784.dkr.ecr.ap-northeast-2.amazonaws.com/peerjs-server:latest
-        imagePullPolicy: Always
+        image: 124355666784.dkr.ecr.ap-northeast-2.amazonaws.com/my-app:latest  # Your ECR image
         ports:
-        - containerPort: 9000
-        env:
-        - name: PORT
-          value: "9000"
-        - name: HTTPS
-          value: "true"
-        readinessProbe:
-          httpGet:
-            path: /healthz
-            port: 9000
-          initialDelaySeconds: 15
-          periodSeconds: 5
-          timeoutSeconds: 3
-          successThreshold: 1
-          failureThreshold: 3
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 9000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        resources:
-          requests:
-            cpu: "100m"
-            memory: "128Mi"
-          limits:
-            cpu: "500m"
-            memory: "512Mi"
-        volumeMounts:
-        - name: static-files
-          mountPath: /app/public
-      volumes:
-      - name: static-files
-        configMap:
-          name: static-files
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: my-app-service
-spec:
-  type: LoadBalancer
-  ports:
-  - port: 443
-    targetPort: 9000
-    protocol: TCP
-  selector:
-    app: my-app
+        - containerPort: 80   # Must match EXPOSE in Dockerfile
+      imagePullSecrets:       # Only needed if you had auth issues
+        - name: ecr-secret    # Use the secret created earlier

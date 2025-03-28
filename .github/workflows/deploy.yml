@@ -1,93 +1,32 @@
-name: Deploy to EKS
-
-on:
-  push:
-    branches: [ main ]
-
-env:
-  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com
-  ECR_REPOSITORY: peerjs-server
-  IMAGE_TAG: latest
-  CLUSTER_NAME: peerjs-cluster
-  AWS_REGION: ap-northeast-2
+name: Deploy to ECR and k3s
+on: [push]   # Triggers on git push
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # Step 1: Checkout code
+      - uses: actions/checkout@v2
 
-    # Modern AWS authentication
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+      # Step 2: Login to Amazon ECR
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          region: ap-northeast-2
 
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
+      # Step 3: Build, tag, and push to ECR
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t my-app .
+          docker tag my-app:latest ${{ secrets.ECR_REGISTRY }}/my-app:latest
+          docker push ${{ secrets.ECR_REGISTRY }}/my-app:latest
 
-    # Proper Buildx setup
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-      with:
-        driver: docker-container
-        install: true
-
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v4
-      with:
-        context: .
-        push: true
-        tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-        platforms: linux/amd64
-
-    # Verify ECR image exists
-    - name: Verify ECR image
-      run: |
-        aws ecr describe-images \
-          --repository-name ${{ env.ECR_REPOSITORY }} \
-          --image-ids imageTag=${{ env.IMAGE_TAG }} \
-          --region ${{ env.AWS_REGION }}
-
-    # Configure Kubernetes access
-    - name: Configure kubectl
-      run: |
-        aws eks update-kubeconfig \
-          --name ${{ env.CLUSTER_NAME }} \
-          --region ${{ env.AWS_REGION }}
-        kubectl get nodes
-
-    # Deploy with comprehensive checks
-    - name: Deploy to EKS
-      run: |
-        # Update image in deployment
-        sed -i "s|image: .*|image: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}|g" deployment.yaml
-        
-        # Create ECR pull secret
-        kubectl create secret docker-registry ecr-secret \
-          --docker-server=${{ env.ECR_REGISTRY }} \
-          --docker-username=AWS \
-          --docker-password=$(aws ecr get-login-password --region ${{ env.AWS_REGION }}) \
-          --dry-run=client -o yaml | kubectl apply -f -
-        
-        # Apply deployment
-        kubectl apply -f deployment.yaml
-        kubectl rollout status deployment/my-app --timeout=300s
-
-    # Verification steps
-    - name: Verify deployment
-      run: |
-        kubectl get deployments -o wide
-        kubectl get pods -o wide
-        kubectl get svc
-        kubectl get events --sort-by=.metadata.creationTimestamp
+      # Step 4: SSH into EC2 and update k3s deployment
+      - name: Deploy to k3s
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}      # EC2 public IP
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }} # Base64-encoded key
+          script: |
+            kubectl set image deployment/my-app my-app=${{ secrets.ECR_REGISTRY }}/my-app:latest
