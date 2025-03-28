@@ -169,7 +169,6 @@
 
         // Host로부터 들어오는 데이터 핸들링
         function handleRemoteData(data) {
-            console.log('Received data:', data); // Add this for debugging
             if (data.type === 'draw') {
                 const x = data.x * canvas.width;
                 const y = data.y * canvas.height;
@@ -181,8 +180,16 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             } else if (data.type === 'box') {
                 const highlightBox = document.getElementById('highlightBox');
-                console.log('Showing highlight box'); // Add this for debugging
+                const video = document.getElementById('remote-video');
+                const videoRect = video.getBoundingClientRect();
+                
+                // Calculate absolute size based on relative dimensions
+                const boxWidth = videoRect.width * data.relativeWidth;
+                const boxHeight = videoRect.height * data.relativeHeight;
+                
                 highlightBox.style.display = data.show ? 'block' : 'none';
+                highlightBox.style.width = `${boxWidth}px`;
+                highlightBox.style.height = `${boxHeight}px`;
                 highlightBox.style.top = data.top;
                 highlightBox.style.right = data.right;
             }
@@ -193,12 +200,31 @@
             const video = document.getElementById('remote-video');
             canvas.width = video.clientWidth;
             canvas.height = video.clientHeight;
+
+            // Update highlight box size
+            const highlightBox = document.getElementById('highlightBox');
+            if (highlightBox.style.display === 'block') {
+                const videoRect = video.getBoundingClientRect();
+                const relativeWidth = 0.2;  // Same as host
+                const relativeHeight = 0.2; // Same as host
+                
+                highlightBox.style.width = `${videoRect.width * relativeWidth}px`;
+                highlightBox.style.height = `${videoRect.height * relativeHeight}px`;
+            }
         }
 
         // 비디오 크기가 변경될 때마다 캔버스 리사이즈
         const video = document.getElementById('remote-video');
         video.onresize = resizeCanvas;
         window.addEventListener('resize', resizeCanvas);
+
+        // Add this at the start of your script to verify the element exists
+        document.addEventListener('DOMContentLoaded', () => {
+            const highlightBox = document.getElementById('highlightBox');
+            if (!highlightBox) {
+                console.error('Highlight box element not found on page load!');
+            }
+        });
     </script>
 </body>
 
