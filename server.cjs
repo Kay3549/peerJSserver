@@ -19,7 +19,7 @@ const server = PeerServer({
     debug: true, // 디버그 모드를 활성화.
     corsOptions: { // CORS 설정을 정의.
         origin: '*', // 모든 출처를 허용.
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // 허용할 HTTP 메서드를 정의.
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // 허용할 HTTP 메서드를 정의.  
         allowedHeaders: ['Content-Type', 'Authorization'], // 허용할 헤더를 정의.
         credentials: true // 자격 증명을 허용.
     }
