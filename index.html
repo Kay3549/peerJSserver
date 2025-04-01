@@ -27,7 +27,9 @@
         .box {
             position: absolute;
             width: 100px;
+            /* 고정된 초기 크기 */
             height: 100px;
+            /* 고정된 초기 크기 */
             border: 2px solid red;
             pointer-events: none;
             display: none;
@@ -51,12 +53,12 @@
     </div>
 
     <script>
-        // PeerJS 객체 생성
+        // PeerJS를 사용하여 새로운 Peer 객체 생성
         const peer = new Peer(null, {
             host: "localhost",
-            port: 9000,
+            port: 3000,  // 9000에서 3000으로 변경
             path: '/peerjs',
-            secure: true  // HTTPS를 위해 true로 설정
+            secure: false
         });
 
         let localStream, conn, drawEnabled = false, isDrawing = false;
@@ -78,7 +80,7 @@
         // 화면 공유 시작 부분
         async function startScreenShare() {
             try {
-                // 화면 공유 스트림 가져오기
+                // 화면 공유를 위한 미디어 스트림 요청
                 localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
                 document.getElementById('local-video').srcObject = localStream;
 
@@ -90,26 +92,39 @@
 
                 // 그리기 모드 전환을 위한 데이터 커넥션 연결
                 conn = peer.connect(targetId);
+
                 conn.on('open', () => {
-                    conn.send({ type: 'init', width: canvas.width, height: canvas.height });
-                });
-                conn.on('data', handleRemoteData);
+                    const video = document.getElementById('local-video');
+                    const videoRect = video.getBoundingClientRect();
 
-                resizeCanvas();
+                    // 비디오 크기에 상대적인 크기 계산
+                    const relativeWidth = 0.2; // 비디오 너비의 20%
+                    const relativeHeight = 0.2; // 비디오 높이의 20%
 
-                // 오른쪽 상단에 하이라이트 박스 표시
-                highlightBox.style.display = 'block';
-                highlightBox.style.top = '20px';
-                highlightBox.style.right = '20px';
+                    const boxWidth = videoRect.width * relativeWidth;
+                    const boxHeight = videoRect.height * relativeHeight;
 
-                if (conn) {
+                    // 호스트 박스 크기 및 위치 설정
+                    highlightBox.style.display = 'block';
+                    highlightBox.style.width = `${boxWidth}px`;
+                    highlightBox.style.height = `${boxHeight}px`;
+                    highlightBox.style.top = '20px';
+                    highlightBox.style.right = '20px';
+
+                    // 뷰어에게 상대적인 크기 전송
                     conn.send({
                         type: 'box',
                         show: true,
+                        relativeWidth: relativeWidth,
+                        relativeHeight: relativeHeight,
                         top: '20px',
                         right: '20px'
                     });
-                }
+                });
+
+                conn.on('data', handleRemoteData);
+                resizeCanvas();
+
             } catch (error) {
                 console.error("에러:", error);
                 alert("화면 공유에 실패했습니다."); 
@@ -181,12 +196,48 @@
             const video = document.getElementById('local-video');
             canvas.width = video.clientWidth;
             canvas.height = video.clientHeight;
+
+            // 하이라이트 박스 크기 업데이트
+            const highlightBox = document.getElementById('highlightBox');
+            if (highlightBox.style.display === 'block') {
+                const videoRect = video.getBoundingClientRect();
+                const relativeWidth = 0.2;
+                const relativeHeight = 0.2;
+
+                highlightBox.style.width = `${videoRect.width * relativeWidth}px`;
+                highlightBox.style.height = `${videoRect.height * relativeHeight}px`;
+
+                if (conn) {
+                    conn.send({
+                        type: 'box',
+                        show: true,
+                        relativeWidth: relativeWidth,
+                        relativeHeight: relativeHeight,
+                        top: '20px',
+                        right: '20px'
+                    });
+                }
+            }
         }
 
         // 비디오 크기가 변경될 때마다 캔버스 리사이즈
         const video = document.getElementById('local-video');
         video.onresize = resizeCanvas;
         window.addEventListener('resize', resizeCanvas);
+
+        // 상대적인 위치를 계산하는 함수 추가
+        function calculateRelativePosition(element) {
+            const video = document.getElementById('local-video');
+            const videoRect = video.getBoundingClientRect();
+            const elementRect = element.getBoundingClientRect();
+
+            return {
+                relativeX: (elementRect.left - videoRect.left) / videoRect.width,
+                relativeY: (elementRect.top - videoRect.top) / videoRect.height,
+                relativeWidth: elementRect.width / videoRect.width,
+                relativeHeight: elementRect.height / videoRect.height
+            };
+        }
     </script>
 </body>
 
