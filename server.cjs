@@ -27,7 +27,7 @@ const server = PeerServer({
 
 // 클라이언트가 연결될 때 이벤트를 처리.
 server.on('connection', (client) => {
-    console.log('Client connected:', client.id); // 연결된 클라이언트의 ID를 출력.
+    console.log('Client connected:', client.id); // 연결된 클라이언트의 ID를 출력.   
 });
 
 // 클라이언트가 연결 해제될 때 이벤트를 처리.
