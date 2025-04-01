@@ -1,11 +1,11 @@
 import { EventEmitter } from "node:events";
 import type { IncomingMessage } from "node:http";
 import type WebSocket from "ws";
-import { Errors, MessageType } from "../../enums.ts";
-import type { IClient } from "../../models/client.ts";
-import { Client } from "../../models/client.ts";
-import type { IConfig } from "../../config/index.ts";
-import type { IRealm } from "../../models/realm.ts";
+import { Errors, MessageType } from "../../enums.js";
+import type { IClient } from "../../models/client.js";
+import { Client } from "../../models/client.js";
+import type { IConfig } from "../../config/index.js";
+import type { IRealm } from "../../models/realm.js";
 import { WebSocketServer as Server } from "ws";
 import type { Server as HttpServer } from "node:http";
 import type { Server as HttpsServer } from "node:https";

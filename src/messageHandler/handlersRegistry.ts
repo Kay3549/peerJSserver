@@ -1,7 +1,7 @@
-import type { MessageType } from "../enums.ts";
-import type { IClient } from "../models/client.ts";
-import type { IMessage } from "../models/message.ts";
-import type { Handler } from "./handler.ts";
+import type { MessageType } from "../enums.js";
+import type { IClient } from "../models/client.js";
+import type { IMessage } from "../models/message.js";
+import type { Handler } from "./handler.js";
 
 export interface IHandlersRegistry {
 	registerHandler(messageType: MessageType, handler: Handler): void;

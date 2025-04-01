@@ -1,7 +1,7 @@
-import { MessageType } from "../../../enums.ts";
-import type { IClient } from "../../../models/client.ts";
-import type { IMessage } from "../../../models/message.ts";
-import type { IRealm } from "../../../models/realm.ts";
+import { MessageType } from "../../../enums.js";
+import type { IClient } from "../../../models/client.js";
+import type { IMessage } from "../../../models/message.js";
+import type { IRealm } from "../../../models/realm.js";
 
 export const TransmissionHandler = ({
 	realm,

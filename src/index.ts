@@ -2,14 +2,14 @@ import express, { type Express } from "express";
 import http from "node:http";
 import https from "node:https";
 
-import type { IConfig } from "./config/index.ts";
-import defaultConfig from "./config/index.ts";
-import type { PeerServerEvents } from "./instance.ts";
-import { createInstance } from "./instance.ts";
-import type { IClient } from "./models/client.ts";
-import type { IMessage } from "./models/message.ts";
+import type { IConfig } from "./config/index.js";
+import defaultConfig from "./config/index.js";
+import type { PeerServerEvents } from "./instance.js";
+import { createInstance } from "./instance.js";
+import type { IClient } from "./models/client.js";
+import type { IMessage } from "./models/message.js";
 
-export type { MessageType } from "./enums.ts";
+export type { MessageType } from "./enums.js";
 export type { IConfig, PeerServerEvents, IClient, IMessage };
 
 function ExpressPeerServer(

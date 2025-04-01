@@ -1,4 +1,4 @@
-import type { IClient } from "../../../models/client.ts";
+import type { IClient } from "../../../models/client.js";
 
 export const HeartbeatHandler = (client: IClient | undefined): boolean => {
 	if (client) {

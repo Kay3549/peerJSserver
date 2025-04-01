@@ -12,14 +12,16 @@
     "declaration": true,
     "allowJs": true,
     "resolveJsonModule": true,
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
-    "types": ["node"]
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "*": ["*", "*.ts", "*.js"]
+    }
   },
   "include": [
     "src/**/*",
     "bin/**/*",
-    "app.json"
+    "fix-imports.js"
   ],
   "exclude": ["node_modules", "dist"]
 } 

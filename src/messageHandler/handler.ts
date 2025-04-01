@@ -1,5 +1,5 @@
-import type { IClient } from "../models/client.ts";
-import type { IMessage } from "../models/message.ts";
+import type { IClient } from "../models/client.js";
+import type { IMessage } from "../models/message.js";
 
 export type Handler = (
 	client: IClient | undefined,

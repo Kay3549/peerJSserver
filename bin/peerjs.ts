@@ -5,7 +5,7 @@ import fs from "node:fs";
 const optimistUsageLength = 98;
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { PeerServer } from "../src/index.ts";
+import { PeerServer } from "../src/index.js";
 import type { AddressInfo } from "node:net";
 import type { CorsOptions } from "cors";
 

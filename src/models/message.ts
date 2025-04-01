@@ -1,4 +1,4 @@
-import type { MessageType } from "../enums.ts";
+import type { MessageType } from "../enums.js";
 
 export interface IMessage {
 	readonly type: MessageType;
