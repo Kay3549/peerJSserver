@@ -26,8 +26,10 @@
 
         .box {
             position: absolute;
-            width: 100px;  /* Fixed initial size */
-            height: 100px; /* Fixed initial size */
+            width: 100px;
+            /* 고정된 초기 크기 */
+            height: 100px;
+            /* 고정된 초기 크기 */
             border: 2px solid red;
             pointer-events: none;
             display: none;
@@ -51,9 +53,10 @@
     </div>
 
     <script>
+        // PeerJS를 사용하여 새로운 Peer 객체 생성
         const peer = new Peer(null, {
             host: "localhost",
-            port: 9000,
+            port: 3000,  // 9000에서 3000으로 변경
             path: '/peerjs',
             secure: false
         });
@@ -68,7 +71,7 @@
             document.getElementById('peer-id').innerText = id;
         });
 
-        // 들어오는 데이터 커넥션 핸들링 부분.
+        // 들어오는 데이터 커넥션 핸들링 부분
         peer.on('connection', (dataConn) => {
             conn = dataConn;
             conn.on('data', handleRemoteData);
@@ -77,6 +80,7 @@
         // 화면 공유 시작 부분
         async function startScreenShare() {
             try {
+                // 화면 공유를 위한 미디어 스트림 요청
                 localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
                 document.getElementById('local-video').srcObject = localStream;
 
@@ -86,28 +90,28 @@
                 // 원격 peer 호출, 화면 스트림 보내기
                 peer.call(targetId, localStream);
 
-                // 그리기 모든 전환을 위한 데이터 커넥션 연결
+                // 그리기 모드 전환을 위한 데이터 커넥션 연결
                 conn = peer.connect(targetId);
-                
+
                 conn.on('open', () => {
                     const video = document.getElementById('local-video');
                     const videoRect = video.getBoundingClientRect();
-                    
-                    // Calculate size relative to video dimensions
-                    const relativeWidth = 0.2; // 20% of video width
-                    const relativeHeight = 0.2; // 20% of video height
-                    
+
+                    // 비디오 크기에 상대적인 크기 계산
+                    const relativeWidth = 0.2; // 비디오 너비의 20%
+                    const relativeHeight = 0.2; // 비디오 높이의 20%
+
                     const boxWidth = videoRect.width * relativeWidth;
                     const boxHeight = videoRect.height * relativeHeight;
-                    
-                    // Set host box size and position
+
+                    // 호스트 박스 크기 및 위치 설정
                     highlightBox.style.display = 'block';
                     highlightBox.style.width = `${boxWidth}px`;
                     highlightBox.style.height = `${boxHeight}px`;
                     highlightBox.style.top = '20px';
                     highlightBox.style.right = '20px';
-                    
-                    // Send relative dimensions to viewer
+
+                    // 뷰어에게 상대적인 크기 전송
                     conn.send({
                         type: 'box',
                         show: true,
@@ -193,13 +197,13 @@
             canvas.width = video.clientWidth;
             canvas.height = video.clientHeight;
 
-            // Update highlight box size if it's visible
+            // 하이라이트 박스 크기 업데이트
             const highlightBox = document.getElementById('highlightBox');
             if (highlightBox.style.display === 'block') {
                 const videoRect = video.getBoundingClientRect();
                 const relativeWidth = 0.2;
                 const relativeHeight = 0.2;
-                
+
                 highlightBox.style.width = `${videoRect.width * relativeWidth}px`;
                 highlightBox.style.height = `${videoRect.height * relativeHeight}px`;
 
@@ -221,12 +225,12 @@
         video.onresize = resizeCanvas;
         window.addEventListener('resize', resizeCanvas);
 
-        // Add this function to calculate relative positions
+        // 상대적인 위치를 계산하는 함수 추가
         function calculateRelativePosition(element) {
             const video = document.getElementById('local-video');
             const videoRect = video.getBoundingClientRect();
             const elementRect = element.getBoundingClientRect();
-            
+
             return {
                 relativeX: (elementRect.left - videoRect.left) / videoRect.width,
                 relativeY: (elementRect.top - videoRect.top) / videoRect.height,

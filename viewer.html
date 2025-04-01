@@ -51,124 +51,180 @@
     </div>
 
     <script>
+        // PeerJS 객체 생성
         const peer = new Peer(null, {
-            host: "localhost",  // Use your EC2 public IP
-            port: 9000,            // HTTPS
+            host: 'localhost',
+            port: 3000,
             path: '/peerjs',
-            secure: false
+            secure: false,
+            debug: 3,
+            config: {
+                'iceServers': [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun2.l.google.com:19302' }
+                ]
+            },
+            reconnectTimer: 1000,
+            retryTimer: 1000
         });
-
 
         let conn, drawEnabled = false, isDrawing = false;
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
 
-        // 내 Peer ID 표시
+        // 재연결 로직 추가
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+
+        // Peer 연결이 열렸을 때
         peer.on('open', (id) => {
             document.getElementById('peer-id').innerText = id;
         });
 
-        // 화면 공유 스트림 수신
+        // 호출을 받을 때
         peer.on('call', (call) => {
-            call.answer(); // 콜에 대해 응답
+            call.answer();
             call.on('stream', (remoteStream) => {
                 document.getElementById('remote-video').srcObject = remoteStream;
                 resizeCanvas();
             });
         });
 
-        // 데이터 커넥션 수신
+        // 데이터 연결을 받을 때
         peer.on('connection', (dataConn) => {
             conn = dataConn;
             conn.on('data', handleRemoteData);
         });
 
-        // Host와 연결
+        // 연결이 끊어졌을 때
+        peer.on('disconnected', () => {
+            console.log('Disconnected from server. Attempting to reconnect...');
+            if (reconnectAttempts < maxReconnectAttempts) {
+                reconnectAttempts++;
+                peer.reconnect();
+            }
+        });
+
+        // 오류가 발생했을 때
+        peer.on('error', (err) => {
+            console.error('Peer connection error:', err);
+            document.getElementById('peer-id').innerText = 'Connection error: ' + err.type;
+            
+            // 오류 발생 시 Peer를 파괴하고 재생성 시도
+            if (err.type === 'server-error' || err.type === 'network') {
+                console.log('Attempting to reconnect...');
+                peer.destroy();
+                location.reload(); // 페이지를 새로고침하여 새로운 Peer 생성
+            }
+        });
+
+        // 호스트에 연결하는 함수
         function connectToHost() {
             const hostId = document.getElementById('host-peer-id').value;
             if (!hostId) return alert("Enter the host's Peer ID");
 
-            // 데이터 커넥션 생성
-            conn = peer.connect(hostId);
-            conn.on('open', () => {
-                console.log("Connected to host");
-            });
-            conn.on('data', handleRemoteData);
+            try {
+                conn = peer.connect(hostId, {
+                    reliable: true
+                });
+
+                conn.on('open', () => {
+                    console.log("Connected to host");
+                });
+
+                conn.on('error', (err) => {
+                    console.error('Connection error:', err);
+                });
+
+                conn.on('data', handleRemoteData);
+
+            } catch (error) {
+                console.error('Connection error:', error);
+                alert('Failed to connect to host');
+            }
         }
 
-        // 그리기 모드로 전환
+        // 그리기 모드를 토글하는 함수
         function toggleDraw() {
             drawEnabled = !drawEnabled;
             canvas.style.pointerEvents = drawEnabled ? 'auto' : 'none';
         }
 
-        // 캔버스 초기화
+        // 그리기를 지우는 함수
         function clearDrawing() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (conn) conn.send({ type: 'clear' });
         }
 
-        // 드로잉 이벤트 다루기 (마우스 및 터치)
+        // 마우스 이벤트 리스너 추가
         canvas.addEventListener('mousedown', startDraw);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', () => isDrawing = false);
         canvas.addEventListener('mouseleave', () => isDrawing = false);
 
+        // 터치 이벤트 리스너 추가
         canvas.addEventListener('touchstart', startDrawTouch);
         canvas.addEventListener('touchmove', drawTouch);
         canvas.addEventListener('touchend', () => isDrawing = false);
 
+        // 그리기 시작 함수 (마우스)
         function startDraw(e) {
             if (!drawEnabled) return;
             isDrawing = true;
             draw(e);
         }
 
+        // 그리기 함수 (마우스)
         function draw(e) {
             if (!isDrawing) return;
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
-            ctx.fillStyle = 'green'; // 클라이언트가 쓰는 색깔
+            ctx.fillStyle = 'green';
             ctx.beginPath();
             ctx.arc(x, y, 5, 0, Math.PI * 2);
             ctx.fill();
 
             if (conn) conn.send({
                 type: 'draw',
-                x: x / canvas.width, // 좌표 정규화
+                x: x / canvas.width,
                 y: y / canvas.height
             });
         }
 
+        // 그리기 시작 함수 (터치)
         function startDrawTouch(e) {
             if (!drawEnabled) return;
             isDrawing = true;
             drawTouch(e);
         }
 
+        // 그리기 함수 (터치)
         function drawTouch(e) {
             if (!isDrawing) return;
             const rect = canvas.getBoundingClientRect();
-            const touch = e.touches[0]; // 첫 번째 터치 포인트
+            const touch = e.touches[0];
             const x = touch.clientX - rect.left;
             const y = touch.clientY - rect.top;
 
-            ctx.fillStyle = 'green'; // 클라이언트가 쓰는 색깔
+            ctx.fillStyle = 'green';
             ctx.beginPath();
             ctx.arc(x, y, 5, 0, Math.PI * 2);
             ctx.fill();
 
             if (conn) conn.send({
                 type: 'draw',
-                x: x / canvas.width, // 좌표 정규화
+                x: x / canvas.width,
                 y: y / canvas.height
             });
         }
 
-        // Host로부터 들어오는 데이터 핸들링
+        // 원격 데이터 처리 함수
         function handleRemoteData(data) {
+            console.log('Received data:', data);
+            
             if (data.type === 'draw') {
                 const x = data.x * canvas.width;
                 const y = data.y * canvas.height;
@@ -182,43 +238,52 @@
                 const highlightBox = document.getElementById('highlightBox');
                 const video = document.getElementById('remote-video');
                 const videoRect = video.getBoundingClientRect();
-                
-                // Calculate absolute size based on relative dimensions
-                const boxWidth = videoRect.width * data.relativeWidth;
-                const boxHeight = videoRect.height * data.relativeHeight;
-                
-                highlightBox.style.display = data.show ? 'block' : 'none';
-                highlightBox.style.width = `${boxWidth}px`;
-                highlightBox.style.height = `${boxHeight}px`;
-                highlightBox.style.top = data.top;
-                highlightBox.style.right = data.right;
+
+                if (data.relativeSize) {
+                    const boxWidth = videoRect.width * data.relativeSize;
+                    const boxHeight = videoRect.height * data.relativeSize;
+                    
+                    highlightBox.style.display = data.show ? 'block' : 'none';
+                    highlightBox.style.width = `${boxWidth}px`;
+                    highlightBox.style.height = `${boxHeight}px`;
+                    
+                    if (data.relativeTop) {
+                        highlightBox.style.top = `${videoRect.height * data.relativeTop}px`;
+                    }
+                    if (data.relativeRight) {
+                        highlightBox.style.right = `${videoRect.width * data.relativeRight}px`;
+                    }
+                } else {
+                    highlightBox.style.display = data.show ? 'block' : 'none';
+                    highlightBox.style.top = data.top;
+                    highlightBox.style.right = data.right;
+                    if (data.width) highlightBox.style.width = data.width;
+                    if (data.height) highlightBox.style.height = data.height;
+                }
             }
         }
 
-        // 화면 공유 비디오 사이즈에 맞게 캔버스도 리사이징
+        // 캔버스 크기 조정 함수
         function resizeCanvas() {
             const video = document.getElementById('remote-video');
             canvas.width = video.clientWidth;
             canvas.height = video.clientHeight;
 
-            // Update highlight box size
             const highlightBox = document.getElementById('highlightBox');
             if (highlightBox.style.display === 'block') {
                 const videoRect = video.getBoundingClientRect();
-                const relativeWidth = 0.2;  // Same as host
-                const relativeHeight = 0.2; // Same as host
+                const relativeSize = 0.2;
                 
-                highlightBox.style.width = `${videoRect.width * relativeWidth}px`;
-                highlightBox.style.height = `${videoRect.height * relativeHeight}px`;
+                highlightBox.style.width = `${videoRect.width * relativeSize}px`;
+                highlightBox.style.height = `${videoRect.height * relativeSize}px`;
             }
         }
 
-        // 비디오 크기가 변경될 때마다 캔버스 리사이즈
         const video = document.getElementById('remote-video');
         video.onresize = resizeCanvas;
         window.addEventListener('resize', resizeCanvas);
 
-        // Add this at the start of your script to verify the element exists
+        // DOMContentLoaded 이벤트 리스너 추가
         document.addEventListener('DOMContentLoaded', () => {
             const highlightBox = document.getElementById('highlightBox');
             if (!highlightBox) {
