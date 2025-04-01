@@ -7,6 +7,7 @@ import { MessagesExpire } from "../../../src/services/messagesExpire/index.ts";
 import { MessageHandler } from "../../../src/messageHandler/index.ts";
 import { MessageType } from "../../../src/enums.ts";
 import { wait } from "../../utils.ts";
+import { MessageQueue } from '../../../src/models/messageQueue';
 
 describe("MessagesExpire", () => {
 	const createTestMessage = (dst: string): IMessage => {

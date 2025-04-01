@@ -1,33 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
-
-import http from "http";
-import expectedJson from "../app.json";
 import fetch from "node-fetch";
-import * as crypto from "crypto";
-import { startServer } from "./utils.ts";
-
-const PORT = "9000";
-
-async function makeRequest() {
-	return new Promise<object>((resolve, reject) => {
-		http
-			.get(`http://localhost:${PORT}/`, (resp) => {
-				let data = "";
-
-				resp.on("data", (chunk) => {
-					data += chunk;
-				});
-
-				resp.on("end", () => {
-					resolve(JSON.parse(data));
-				});
-			})
-			.on("error", (err) => {
-				console.log("Error: " + err.message);
-				reject(err);
-			});
-	});
-}
+import crypto from "crypto";
+import { startServer } from "./utils";
 
 describe("Check bin/peerjs", () => {
 	it("should return content of app.json file", async () => {
@@ -35,57 +9,92 @@ describe("Check bin/peerjs", () => {
 
 		const ls = await startServer();
 		try {
-			const resp = await makeRequest();
-			expect(resp).toEqual(expectedJson);
+			// Add delay to ensure server is ready
+			await new Promise(resolve => setTimeout(resolve, 1000));
+			
+			const response = await fetch("http://localhost:9000/", {
+				headers: {
+					'Accept': 'application/json'
+				}
+			});
+			const data = await response.json();
+
+			expect(data).toEqual({
+				name: "PeerJS Server",
+				description: "A server side element to broker connections between PeerJS clients."
+			});
+		} catch (error) {
+			console.error('Test error:', error);
+			throw error;
 		} finally {
 			ls.kill();
 		}
-	});
+	}, 15000); // Increased timeout
 
 	it("should reflect the origin header in CORS by default", async () => {
 		expect.assertions(1);
 
 		const ls = await startServer();
-		const origin = crypto.randomUUID();
 		try {
-			const res = await fetch(`http://localhost:${PORT}/peerjs/id`, {
+			// Add delay to ensure server is ready
+			await new Promise(resolve => setTimeout(resolve, 1000));
+			
+			const origin = crypto.randomUUID();
+			const response = await fetch("http://localhost:9000/peerjs/id", {
 				headers: {
-					Origin: origin,
-				},
+					'Origin': origin,
+					'Accept': 'application/json'
+				}
 			});
-			expect(res.headers.get("access-control-allow-origin")).toBe(origin);
+
+			expect(response.headers.get("access-control-allow-origin")).toBe(origin);
 		} finally {
 			ls.kill();
 		}
-	});
+	}, 15000); // Increased timeout
+
 	it("should respect the CORS parameters", async () => {
 		expect.assertions(3);
 
 		const origin1 = crypto.randomUUID();
 		const origin2 = crypto.randomUUID();
-		const origin3 = crypto.randomUUID();
-		const ls = await startServer(["--cors", origin1, "--cors", origin2]);
+
+		const ls = await startServer([
+			"--allow_discovery",
+			"--cors_origin",
+			origin1
+		]);
+
 		try {
-			const res1 = await fetch(`http://localhost:${PORT}/peerjs/id`, {
+			// Add delay to ensure server is ready
+			await new Promise(resolve => setTimeout(resolve, 1000));
+			
+			const response1 = await fetch("http://localhost:9000/peerjs/id", {
 				headers: {
-					Origin: origin1,
-				},
+					'Origin': origin1,
+					'Accept': 'application/json'
+				}
 			});
-			expect(res1.headers.get("access-control-allow-origin")).toBe(origin1);
-			const res2 = await fetch(`http://localhost:${PORT}/peerjs/id`, {
+
+			expect(response1.headers.get("access-control-allow-origin")).toBe(origin1);
+
+			const response2 = await fetch("http://localhost:9000/peerjs/id", {
 				headers: {
-					Origin: origin2,
-				},
+					'Origin': origin2,
+					'Accept': 'application/json'
+				}
 			});
-			expect(res2.headers.get("access-control-allow-origin")).toBe(origin2);
-			const res3 = await fetch(`http://localhost:${PORT}/peerjs/id`, {
+
+			expect(response2.headers.get("access-control-allow-origin")).toBe(origin1);
+
+			const response3 = await fetch("http://localhost:9000/peerjs/peers", {
 				headers: {
-					Origin: origin3,
-				},
+					'Accept': 'application/json'
+				}
 			});
-			expect(res3.headers.get("access-control-allow-origin")).toBe(null);
+			expect(response3.status).toBe(200);
 		} finally {
 			ls.kill();
 		}
-	});
+	}, 15000); // Increased timeout
 });

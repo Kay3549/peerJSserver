@@ -1,13 +1,19 @@
 /** @type {import('jest').Config} */
-const config = {
-	testEnvironment: "node",
-	transform: {
-		"^.+\\.(t|j)sx?$": "@swc/jest",
+export default {
+	preset: 'ts-jest',
+	testEnvironment: 'node',
+	extensionsToTreatAsEsm: ['.ts'],
+	moduleNameMapper: {
+		'^(\\.{1,2}/.*)\\.js$': '$1',
+		'^(\\.{1,2}/.*)\\.ts$': '$1'
 	},
-	transformIgnorePatterns: [
-		// "node_modules"
-	],
-	collectCoverageFrom: ["./src/**"],
-};
-
-export default config;
+	transform: {
+		'^.+\\.(t|j)sx?$': ['@swc/jest']
+	},
+	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+	testMatch: ['**/__test__/**/*.(test|spec).(ts|tsx|js)'],
+	collectCoverageFrom: [
+		'src/**/*.{ts,tsx,js,jsx}',
+		'!src/**/*.d.ts'
+	]
+}
