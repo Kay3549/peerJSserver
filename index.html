@@ -51,11 +51,12 @@
     </div>
 
     <script>
+        // PeerJS 객체 생성
         const peer = new Peer(null, {
-            host: "3.39.117.253",
-            port: 443,
+            host: "localhost",
+            port: 9000,
             path: '/peerjs',
-            secure: true  // Set to true for HTTPS
+            secure: true  // HTTPS를 위해 true로 설정
         });
 
         let localStream, conn, drawEnabled = false, isDrawing = false;
@@ -68,7 +69,7 @@
             document.getElementById('peer-id').innerText = id;
         });
 
-        // 들어오는 데이터 커넥션 핸들링 부분.
+        // 들어오는 데이터 커넥션 핸들링 부분
         peer.on('connection', (dataConn) => {
             conn = dataConn;
             conn.on('data', handleRemoteData);
@@ -77,6 +78,7 @@
         // 화면 공유 시작 부분
         async function startScreenShare() {
             try {
+                // 화면 공유 스트림 가져오기
                 localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
                 document.getElementById('local-video').srcObject = localStream;
 
@@ -86,7 +88,7 @@
                 // 원격 peer 호출, 화면 스트림 보내기
                 peer.call(targetId, localStream);
 
-                // 그리기 모든 전환을 위한 데이터 커넥션 연결
+                // 그리기 모드 전환을 위한 데이터 커넥션 연결
                 conn = peer.connect(targetId);
                 conn.on('open', () => {
                     conn.send({ type: 'init', width: canvas.width, height: canvas.height });
@@ -95,7 +97,7 @@
 
                 resizeCanvas();
 
-                // Show highlight box in top-right corner
+                // 오른쪽 상단에 하이라이트 박스 표시
                 highlightBox.style.display = 'block';
                 highlightBox.style.top = '20px';
                 highlightBox.style.right = '20px';

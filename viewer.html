@@ -41,13 +41,13 @@
     </div>
 
     <script>
+        // PeerJS 객체 생성
         const peer = new Peer(null, {
-            host: "3.39.117.253",
-            port: 443,
+            host: "localhost",
+            port: 9000,
             path: '/peerjs',
-            secure: true  // Set to true for HTTPS
+            secure: true  // HTTPS를 위해 true로 설정
         });
-
 
         let conn, drawEnabled = false, isDrawing = false;
         const canvas = document.getElementById('drawingCanvas');
@@ -108,12 +108,14 @@
         canvas.addEventListener('touchmove', drawTouch);
         canvas.addEventListener('touchend', () => isDrawing = false);
 
+        // 마우스 드로잉 시작
         function startDraw(e) {
             if (!drawEnabled) return;
             isDrawing = true;
             draw(e);
         }
 
+        // 마우스 드로잉
         function draw(e) {
             if (!isDrawing) return;
             const rect = canvas.getBoundingClientRect();
@@ -132,12 +134,14 @@
             });
         }
 
+        // 터치 드로잉 시작
         function startDrawTouch(e) {
             if (!drawEnabled) return;
             isDrawing = true;
             drawTouch(e);
         }
 
+        // 터치 드로잉
         function drawTouch(e) {
             if (!isDrawing) return;
             const rect = canvas.getBoundingClientRect();
