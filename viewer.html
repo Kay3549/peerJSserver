@@ -5,25 +5,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Viewer - Screen Share with Drawing</title>
+    <!-- PeerJS 클라이언트 라이브러리 로드 -->
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
+        /* 그리기 캔버스 스타일 */
         #drawingCanvas {
             position: absolute;
             top: 0;
             left: 0;
-            pointer-events: none;
+            pointer-events: none;  /* 기본적으로 마우스 이벤트 무시 */
         }
 
+        /* 비디오 스타일 */
         video {
             width: 100%;
             height: auto;
         }
 
+        /* 컨테이너 스타일 */
         #container {
             position: relative;
             display: inline-block;
         }
 
+        /* 하이라이트 박스 스타일 */
         .box {
             position: absolute;
             width: 100px;
@@ -39,11 +44,13 @@
     <h2>Viewer - Screen Share with Drawing</h2>
     <p>My Peer ID: <span id="peer-id">Loading...</span></p>
 
+    <!-- 호스트 연결을 위한 입력 필드와 버튼들 -->
     <input type="text" id="host-peer-id" placeholder="Enter Host Peer ID">
     <button onclick="connectToHost()">Connect to Host</button>
     <button onclick="toggleDraw()">Draw Mode</button>
     <button onclick="clearDrawing()">Clear Drawing</button>
 
+    <!-- 비디오, 캔버스, 하이라이트 박스를 포함하는 컨테이너 -->
     <div id="container">
         <video id="remote-video" autoplay playsinline></video>
         <canvas id="drawingCanvas"></canvas>
@@ -51,51 +58,52 @@
     </div>
 
     <script>
-        // PeerJS 객체 생성
+        // PeerJS 클라이언트 설정
         const peer = new Peer(null, {
-            host: 'localhost',
-            port: 9000,
-            path: '/',
-            key: 'peerjs',
-            secure: false,
-            debug: 3,
+            host: 'localhost',     // 서버 호스트
+            port: 9000,           // 서버 포트
+            path: '/',            // 서버 경로
+            key: 'peerjs',        // 서버 인증 키
+            secure: false,        // HTTPS 사용 여부
+            debug: 3,             // 디버그 레벨
             config: {
-                'iceServers': [
+                'iceServers': [   // WebRTC 연결을 위한 STUN 서버들
                     { urls: 'stun:stun.l.google.com:19302' },
                     { urls: 'stun:stun1.l.google.com:19302' },
                     { urls: 'stun:stun2.l.google.com:19302' }
                 ]
             },
-            reconnectTimer: 1000,
-            retryTimer: 1000
+            reconnectTimer: 1000, // 재연결 시도 간격
+            retryTimer: 1000      // 재시도 간격
         });
 
+        // 전역 변수 선언
         let conn, drawEnabled = false, isDrawing = false;
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
 
-        // 재연결 로직 추가
+        // 재연결 관련 변수
         let reconnectAttempts = 0;
         const maxReconnectAttempts = 5;
 
-        // Peer 연결이 열렸을 때
+        // Peer 연결이 성공했을 때 실행
         peer.on('open', (id) => {
             document.getElementById('peer-id').innerText = id;
         });
 
-        // 호출을 받을 때
+        // 호스트로부터 화면 공유 요청을 받았을 때
         peer.on('call', (call) => {
-            call.answer();
+            call.answer();  // 요청 수락
             call.on('stream', (remoteStream) => {
                 document.getElementById('remote-video').srcObject = remoteStream;
-                resizeCanvas();
+                resizeCanvas();  // 캔버스 크기 조정
             });
         });
 
-        // 데이터 연결을 받을 때
+        // 데이터 연결이 수립되었을 때
         peer.on('connection', (dataConn) => {
             conn = dataConn;
-            conn.on('data', handleRemoteData);
+            conn.on('data', handleRemoteData);  // 데이터 수신 처리
         });
 
         // 연결이 끊어졌을 때
@@ -107,12 +115,12 @@
             }
         });
 
-        // 오류가 발생했을 때
+        // 오류 발생 시
         peer.on('error', (err) => {
             console.error('Peer connection error:', err);
             document.getElementById('peer-id').innerText = 'Connection error: ' + err.type;
             
-            // 오류 발생 시 재연결 시도
+            // 서버 오류나 네트워크 오류 시 재연결 시도
             if (err.type === 'server-error' || err.type === 'network') {
                 console.log('Attempting to reconnect...');
                 peer.reconnect();
@@ -125,6 +133,7 @@
             if (!hostId) return alert("Enter the host's Peer ID");
 
             try {
+                // 호스트와 데이터 연결 수립
                 conn = peer.connect(hostId, {
                     reliable: true
                 });
@@ -145,37 +154,37 @@
             }
         }
 
-        // 그리기 모드를 토글하는 함수
+        // 그리기 모드 토글 함수
         function toggleDraw() {
             drawEnabled = !drawEnabled;
             canvas.style.pointerEvents = drawEnabled ? 'auto' : 'none';
         }
 
-        // 그리기를 지우는 함수
+        // 그리기 지우기 함수
         function clearDrawing() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (conn) conn.send({ type: 'clear' });
         }
 
-        // 마우스 이벤트 리스너 추가
+        // 마우스 이벤트 리스너 등록
         canvas.addEventListener('mousedown', startDraw);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', () => isDrawing = false);
         canvas.addEventListener('mouseleave', () => isDrawing = false);
 
-        // 터치 이벤트 리스너 추가
+        // 터치 이벤트 리스너 등록
         canvas.addEventListener('touchstart', startDrawTouch);
         canvas.addEventListener('touchmove', drawTouch);
         canvas.addEventListener('touchend', () => isDrawing = false);
 
-        // 그리기 시작 함수 (마우스)
+        // 마우스로 그리기 시작
         function startDraw(e) {
             if (!drawEnabled) return;
             isDrawing = true;
             draw(e);
         }
 
-        // 그리기 함수 (마우스)
+        // 마우스로 그리기
         function draw(e) {
             if (!isDrawing) return;
             const rect = canvas.getBoundingClientRect();
@@ -187,6 +196,7 @@
             ctx.arc(x, y, 5, 0, Math.PI * 2);
             ctx.fill();
 
+            // 호스트에게 그리기 데이터 전송
             if (conn) conn.send({
                 type: 'draw',
                 x: x / canvas.width,
@@ -194,14 +204,14 @@
             });
         }
 
-        // 그리기 시작 함수 (터치)
+        // 터치로 그리기 시작
         function startDrawTouch(e) {
             if (!drawEnabled) return;
             isDrawing = true;
             drawTouch(e);
         }
 
-        // 그리기 함수 (터치)
+        // 터치로 그리기
         function drawTouch(e) {
             if (!isDrawing) return;
             const rect = canvas.getBoundingClientRect();
@@ -214,6 +224,7 @@
             ctx.arc(x, y, 5, 0, Math.PI * 2);
             ctx.fill();
 
+            // 호스트에게 그리기 데이터 전송
             if (conn) conn.send({
                 type: 'draw',
                 x: x / canvas.width,
@@ -221,11 +232,12 @@
             });
         }
 
-        // 원격 데이터 처리 함수
+        // 호스트로부터 받은 데이터 처리
         function handleRemoteData(data) {
             console.log('Received data:', data);
             
             if (data.type === 'draw') {
+                // 그리기 데이터 처리
                 const x = data.x * canvas.width;
                 const y = data.y * canvas.height;
                 ctx.fillStyle = 'blue';
@@ -233,13 +245,16 @@
                 ctx.arc(x, y, 5, 0, Math.PI * 2);
                 ctx.fill();
             } else if (data.type === 'clear') {
+                // 캔버스 지우기
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             } else if (data.type === 'box') {
+                // 하이라이트 박스 표시/숨김
                 const highlightBox = document.getElementById('highlightBox');
                 const video = document.getElementById('remote-video');
                 const videoRect = video.getBoundingClientRect();
 
                 if (data.relativeSize) {
+                    // 상대적 크기로 박스 표시
                     const boxWidth = videoRect.width * data.relativeSize;
                     const boxHeight = videoRect.height * data.relativeSize;
                     
@@ -254,6 +269,7 @@
                         highlightBox.style.right = `${videoRect.width * data.relativeRight}px`;
                     }
                 } else {
+                    // 절대적 크기로 박스 표시
                     highlightBox.style.display = data.show ? 'block' : 'none';
                     highlightBox.style.top = data.top;
                     highlightBox.style.right = data.right;
@@ -269,6 +285,7 @@
             canvas.width = video.clientWidth;
             canvas.height = video.clientHeight;
 
+            // 하이라이트 박스 크기도 조정
             const highlightBox = document.getElementById('highlightBox');
             if (highlightBox.style.display === 'block') {
                 const videoRect = video.getBoundingClientRect();
@@ -279,11 +296,12 @@
             }
         }
 
+        // 비디오 크기 변경 시 캔버스 크기 조정
         const video = document.getElementById('remote-video');
         video.onresize = resizeCanvas;
         window.addEventListener('resize', resizeCanvas);
 
-        // DOMContentLoaded 이벤트 리스너 추가
+        // 페이지 로드 완료 시 실행
         document.addEventListener('DOMContentLoaded', () => {
             const highlightBox = document.getElementById('highlightBox');
             if (!highlightBox) {
