@@ -54,8 +54,9 @@
         // PeerJS 객체 생성
         const peer = new Peer(null, {
             host: 'localhost',
-            port: 3000,
-            path: '/peerjs',
+            port: 9000,
+            path: '/',
+            key: 'peerjs',
             secure: false,
             debug: 3,
             config: {
@@ -111,11 +112,10 @@
             console.error('Peer connection error:', err);
             document.getElementById('peer-id').innerText = 'Connection error: ' + err.type;
             
-            // 오류 발생 시 Peer를 파괴하고 재생성 시도
+            // 오류 발생 시 재연결 시도
             if (err.type === 'server-error' || err.type === 'network') {
                 console.log('Attempting to reconnect...');
-                peer.destroy();
-                location.reload(); // 페이지를 새로고침하여 새로운 Peer 생성
+                peer.reconnect();
             }
         });
 

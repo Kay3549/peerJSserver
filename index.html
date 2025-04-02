@@ -56,8 +56,9 @@
         // PeerJS를 사용하여 새로운 Peer 객체 생성
         const peer = new Peer(null, {
             host: "localhost",
-            port: 3000,  // 9000에서 3000으로 변경
-            path: '/peerjs',
+            port: 9000,
+            path: '/',
+            key: 'peerjs',
             secure: false
         });
 
