@@ -18,7 +18,7 @@
         }
         .agree-box {
             margin-top: 20px;
-            border: 2px solid red; /* Red border for the checkbox area */
+            border: 2px solid red; /* 체크박스 영역에 빨간색 테두리 */
             padding: 10px;
             display: inline-block;
             border-radius: 5px;
@@ -39,11 +39,11 @@
         .navigation-buttons {
             margin-top: 20px;
             display: flex;
-            justify-content: flex-start; /* Align buttons to the left */
-            gap: 10px; /* Add space between buttons */
-            position: fixed; /* Fix position at the bottom */
-            bottom: 20px; /* Distance from the bottom */
-            right: 20px; /* Distance from the right */
+            justify-content: flex-start; /* 버튼을 왼쪽에 정렬 */
+            gap: 10px; /* 버튼 사이의 간격 추가 */
+            position: fixed; /* 하단에 고정 위치 */
+            bottom: 20px; /* 하단에서의 거리 */
+            right: 20px; /* 오른쪽에서의 거리 */
         }
         .arrow-button {
             font-size: 24px;
@@ -58,7 +58,7 @@
 <body>
     <h2>Insurance Contract Agreement</h2>
 
-    <!-- Page 1 -->
+    <!-- 페이지 1 -->
     <div class="contract-box page active" id="page1">
         <h3>Section 1: General Terms</h3>
         <p>This contract is made between [Party A] and [Party B] on [Date]. The parties agree to the following terms and conditions:</p>
@@ -76,7 +76,7 @@
         </div>
     </div>
 
-    <!-- Page 2 -->
+    <!-- 페이지 2 -->
     <div class="contract-box page" id="page2">
         <h3>Section 2: Payment Terms</h3>
         <p>The following payment terms apply to this contract:</p>
@@ -94,7 +94,7 @@
         </div>
     </div>
 
-    <!-- Page 3 -->
+    <!-- 페이지 3 -->
     <div class="contract-box page" id="page3">
         <h3>Section 3: Confidentiality & Claims</h3>
         <p>The parties agree to maintain confidentiality regarding personal and financial details, and agree to the following claims procedures:</p>
@@ -112,7 +112,7 @@
         </div>
     </div>
 
-    <!-- Page 4 (Optional final page with overall agreement) -->
+    <!-- 페이지 4 (전체 동의 페이지) -->
     <div class="contract-box page" id="page4">
         <h3>Final Agreement</h3>
         <p>By checking the box below, you confirm that you have read, understood, and agree to all the terms and conditions specified in this contract, including all sections.</p>
@@ -123,19 +123,58 @@
         </div>
     </div>
 
-    <!-- Navigation Buttons -->
+    <!-- 네비게이션 버튼 -->
     <div class="navigation-buttons">
         <button class="arrow-button" id="prev" onclick="movePage('prev')">&#8592; Previous</button>
         <button class="arrow-button" id="next" onclick="movePage('next')">Next &#8594;</button>
     </div>
 
+    <!-- 음성 알림을 위한 오디오 요소 -->
+    <audio id="agreeAlert" preload="auto">
+        <source src="/sounds/please-agree.m4a" type="audio/mp4">
+    </audio>
+    <audio id="successSound" preload="auto">
+        <source src="/sounds/checkbox-checked.m4a" type="audio/mp4">
+    </audio>
+
     <script>
         let currentPage = 1;
         const totalPages = 4;
 
-        // Function to move between pages
+        // 현재 페이지가 동의되었는지 확인하는 함수
+        function isCurrentPageAgreed() {
+            const checkbox = document.getElementById(`agree${currentPage}`);
+            return checkbox && checkbox.checked;
+        }
+
+        // 음성 알림을 재생하는 함수
+        function playAgreeAlert() {
+            const audio = document.getElementById('agreeAlert');
+            audio.play().catch(error => {
+                console.log('Audio play failed:', error);
+            });
+        }
+
+        // 성공 소리를 재생하는 함수
+        function playSuccessSound() {
+            const audio = document.getElementById('successSound');
+            audio.play().catch(error => {
+                console.log('Audio play failed:', error);
+            });
+        }
+
+        // 페이지를 이동하는 함수
         function movePage(direction) {
-            // Hide current page
+            if (direction === 'next') {
+                // 다음 페이지로 이동하기 전에 현재 페이지가 동의되었는지 확인
+                if (!isCurrentPageAgreed()) {
+                    playAgreeAlert();
+                    alert('Please agree to the terms before proceeding to the next page.');
+                    return;
+                }
+            }
+
+            // 현재 페이지 숨기기
             document.getElementById(`page${currentPage}`).classList.remove('active');
             
             if (direction === 'next' && currentPage < totalPages) {
@@ -144,9 +183,18 @@
                 currentPage--;
             }
             
-            // Show new page
+            // 새로운 페이지 보이기
             document.getElementById(`page${currentPage}`).classList.add('active');
         }
+
+        // 체크박스에 이벤트 리스너 추가
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    playSuccessSound();
+                }
+            });
+        });
     </script>
 
 </body>

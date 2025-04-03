@@ -2,10 +2,18 @@
 import express from 'express';  // Express 웹 서버 프레임워크
 import http from 'http';        // HTTP 서버 기능
 import { PeerServer } from 'peerjs-server';  // PeerJS 서버 기능
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Express 애플리케이션과 HTTP 서버를 생성합니다
 const app = express();
 const server = http.createServer(app);
+
+// public 디렉토리에서 정적 파일을 제공.
+app.use(express.static(path.join(__dirname, 'public')));
 
 // PeerServer 인스턴스를 생성하고 설정합니다
 const peerServer = PeerServer({
