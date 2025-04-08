@@ -18,7 +18,7 @@
         }
         .agree-box {
             margin-top: 20px;
-            border: 2px solid red; /* 체크박스 영역에 빨간색 테두리 */
+            border: 2px solid red;
             padding: 10px;
             display: inline-block;
             border-radius: 5px;
@@ -39,11 +39,11 @@
         .navigation-buttons {
             margin-top: 20px;
             display: flex;
-            justify-content: flex-start; /* 버튼을 왼쪽에 정렬 */
-            gap: 10px; /* 버튼 사이의 간격 추가 */
-            position: fixed; /* 하단에 고정 위치 */
-            bottom: 20px; /* 하단에서의 거리 */
-            right: 20px; /* 오른쪽에서의 거리 */
+            justify-content: flex-start;
+            gap: 10px;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
         }
         .arrow-button {
             font-size: 24px;
@@ -166,7 +166,6 @@
         // 페이지를 이동하는 함수
         function movePage(direction) {
             if (direction === 'next') {
-                // 다음 페이지로 이동하기 전에 현재 페이지가 동의되었는지 확인
                 if (!isCurrentPageAgreed()) {
                     playAgreeAlert();
                     alert('Please agree to the terms before proceeding to the next page.');
@@ -174,7 +173,6 @@
                 }
             }
 
-            // 현재 페이지 숨기기
             document.getElementById(`page${currentPage}`).classList.remove('active');
             
             if (direction === 'next' && currentPage < totalPages) {
@@ -183,7 +181,6 @@
                 currentPage--;
             }
             
-            // 새로운 페이지 보이기
             document.getElementById(`page${currentPage}`).classList.add('active');
         }
 
