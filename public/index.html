@@ -12,7 +12,8 @@
             position: absolute;
             top: 0;
             left: 0;
-            pointer-events: none;  /* 기본적으로 마우스 이벤트 무시 */
+            pointer-events: none;
+            /* 기본적으로 마우스 이벤트 무시 */
         }
 
         /* 비디오 스타일 */
@@ -59,12 +60,13 @@
     <script>
         // PeerJS 클라이언트 설정
         const peer = new Peer(null, {
-            host: "localhost",     // 서버 호스트
-            port: 9000,           // 서버 포트
-            path: '/',            // 서버 경로
-            key: 'peerjs',        // 서버 인증 키
-            secure: false         // HTTPS 사용 여부
+            host: "localhost",
+            port: 9000,
+            path: '/peerjs', 
+            key: 'peerjs',
+            secure: false
         });
+
 
         // 전역 변수 선언
         let localStream, conn, drawEnabled = false, isDrawing = false;
@@ -133,7 +135,7 @@
 
             } catch (error) {
                 console.error("에러:", error);
-                alert("화면 공유에 실패했습니다."); 
+                alert("화면 공유에 실패했습니다.");
             }
         }
 
@@ -165,7 +167,7 @@
         // 그리기 함수
         function draw(e) {
             if (!isDrawing) return;
-            const rect = canvas.getBoundingClientRect(); 
+            const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 

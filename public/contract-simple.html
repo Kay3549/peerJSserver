@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Contract</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fafafa;
+            color: #333;
+        }
+
+        .contract-section {
+            background: white;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: none;
+        }
+
+        .contract-section.active {
+            display: block;
+        }
+
+        h1 {
+            color: #1a1a1a;
+            font-size: 2em;
+            margin-bottom: 1em;
+            text-align: center;
+        }
+
+        h2 {
+            color: #2563eb;
+            font-size: 1.5em;
+            margin-bottom: 1em;
+            padding-bottom: 0.5em;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .terms {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .terms li {
+            margin: 10px 0;
+        }
+
+        .agree-box {
+            background: #f0f9ff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid #93c5fd;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .agree-box:hover {
+            background: #e0f2fe;
+        }
+
+        .agree-checkbox {
+            width: 20px;
+            height: 20px;
+            accent-color: #2563eb;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        .prev-btn {
+            background: #e5e7eb;
+            color: #4b5563;
+        }
+
+        .next-btn {
+            background: #2563eb;
+            color: white;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e5e7eb;
+            margin: 20px 0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: #2563eb;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Service Agreement</h1>
+    
+    <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="contract-section active" id="section1">
+        <h2>Basic Terms</h2>
+        <div class="terms">
+            <li>Clear and simple service description</li>
+            <li>Straightforward pricing structure</li>
+            <li>Basic service level expectations</li>
+            <li>Standard support hours</li>
+        </div>
+        <div class="agree-box">
+            <input type="checkbox" id="agree1" class="agree-checkbox">
+            <label for="agree1">I understand and accept these basic terms</label>
+        </div>
+    </div>
+
+    <div class="contract-section" id="section2">
+        <h2>Usage Guidelines</h2>
+        <div class="terms">
+            <li>Acceptable use policy</li>
+            <li>Resource limitations</li>
+            <li>User responsibilities</li>
+            <li>Security requirements</li>
+        </div>
+        <div class="agree-box">
+            <input type="checkbox" id="agree2" class="agree-checkbox">
+            <label for="agree2">I agree to follow these guidelines</label>
+        </div>
+    </div>
+
+    <div class="contract-section" id="section3">
+        <h2>Final Agreement</h2>
+        <div class="terms">
+            <li>Complete terms acceptance</li>
+            <li>Agreement to all sections</li>
+            <li>Understanding of responsibilities</li>
+            <li>Acknowledgment of terms</li>
+        </div>
+        <div class="agree-box">
+            <input type="checkbox" id="agree3" class="agree-checkbox">
+            <label for="agree3">I fully agree to all terms and conditions</label>
+        </div>
+    </div>
+
+    <div class="nav-buttons">
+        <button onclick="navigate('prev')" class="prev-btn" id="prevBtn" disabled>Previous</button>
+        <button onclick="navigate('next')" class="next-btn" id="nextBtn">Next</button>
+    </div>
+
+    <!-- 오디오 요소 -->
+    <audio id="agreeAlert" preload="auto">
+        <source src="/sounds/please-agree.m4a" type="audio/mp4">
+    </audio>
+    <audio id="successSound" preload="auto">
+        <source src="/sounds/checkbox-checked.m4a" type="audio/mp4">
+    </audio>
+
+    <!-- 경고 시스템 스크립트 -->
+    <script src="/warning-system.js"></script>
+
+    <script>
+        // 현재 페이지와 전체 페이지 수 설정
+        let currentPage = 1;
+        const totalPages = 3;
+
+        // 페이지 이동 함수
+        function navigate(direction) {
+            // 현재 체크박스 확인
+            const currentCheckbox = document.querySelector(`#section${currentPage} input[type="checkbox"]`);
+            
+            // 다음 페이지로 이동 시 체크박스 확인
+            if (direction === 'next' && (!currentCheckbox || !currentCheckbox.checked)) {
+                // 부모 프레임에 경고 메시지 전송
+                window.parent.postMessage({
+                    type: 'showWarning',
+                    selector: '.checkbox-container'
+                }, '*');
+                return;
+            }
+
+            // 현재 섹션 숨기기
+            document.getElementById(`section${currentPage}`).style.display = 'none';
+            
+            // 다음/이전 페이지로 이동
+            if (direction === 'next' && currentPage < totalPages) {
+                currentPage++;
+            } else if (direction === 'prev' && currentPage > 1) {
+                currentPage--;
+            }
+            
+            // 새로운 섹션 표시
+            document.getElementById(`section${currentPage}`).style.display = 'block';
+            
+            // 진행 상태 업데이트
+            updateProgress();
+        }
+
+        // 진행 상태 업데이트 함수
+        function updateProgress() {
+            const progress = (currentPage / totalPages) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+        }
+
+        // 초기 진행 상태 설정
+        updateProgress();
+
+        // 체크박스 이벤트 리스너 추가
+        document.querySelectorAll('.agree-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    // 성공 사운드 재생
+                    const audio = document.getElementById('successSound');
+                    if (audio) {
+                        audio.play().catch(error => {
+                            console.log('Audio play failed:', error);
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

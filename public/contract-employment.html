@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employment Contract</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            background: #2c3e50;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .contract-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        .contract-header {
+            background: #34495e;
+            padding: 30px;
+            border-radius: 15px 15px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contract-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, #3498db, #2ecc71);
+            opacity: 0.8;
+            z-index: 1;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+            text-align: center;
+        }
+
+        .header-content h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-content p {
+            margin: 10px 0 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .contract-content {
+            padding: 30px;
+        }
+
+        .section {
+            display: none;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            display: flex;
+            align-items: center;
+        }
+
+        .section h2::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #3498db;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+
+        .content-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+
+        .content-box p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .content-box ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .content-box li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .agreement-box {
+            background: #e8f4fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px solid #3498db;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .agreement-checkbox {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+            accent-color: #3498db;
+            cursor: pointer;
+        }
+
+        .agreement-label {
+            font-size: 16px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .navigation {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 0 0 15px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .nav-button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prev-btn {
+            background: #e9ecef;
+            color: #2c3e50;
+        }
+
+        .next-btn {
+            background: #3498db;
+            color: white;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-container {
+            padding: 20px 30px;
+            background: #f8f9fa;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(45deg, #3498db, #2ecc71);
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .section-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .indicator-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .indicator-dot.active {
+            background: #3498db;
+            transform: scale(1.2);
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="contract-container">
+        <div class="contract-header">
+            <div class="header-content">
+                <h1>Employment Agreement</h1>
+                <p>Comprehensive Terms & Conditions of Employment</p>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            <div class="progress-text">
+                <span id="progressText">Section 1 of 6</span>
+                <span id="progressPercentage">16%</span>
+            </div>
+            <div class="section-indicator" id="sectionIndicator"></div>
+        </div>
+
+        <div class="contract-content">
+            <div class="section active" id="section1">
+                <h2>Position & Duties</h2>
+                <div class="content-box">
+                    <p>This Employment Agreement ("Agreement") is made between <span class="highlight">[Company Name]</span> ("Employer") and <span class="highlight">[Employee Name]</span> ("Employee").</p>
+                    <h3>1.1 Position</h3>
+                    <p>The Employee is hired for the position of <span class="highlight">[Job Title]</span> and will report to <span class="highlight">[Supervisor's Title]</span>.</p>
+                    <h3>1.2 Primary Duties</h3>
+                    <ul>
+                        <li>Perform assigned tasks and responsibilities professionally</li>
+                        <li>Maintain regular attendance and punctuality</li>
+                        <li>Follow company policies and procedures</li>
+                        <li>Collaborate with team members effectively</li>
+                    </ul>
+                </div>
+                <div class="agreement-box">
+                    <input type="checkbox" id="agree1" class="agreement-checkbox">
+                    <label for="agree1" class="agreement-label">I understand and accept the position and duties outlined above</label>
+                </div>
+            </div>
+
+            <div class="section" id="section2">
+                <h2>Compensation & Benefits</h2>
+                <div class="content-box">
+                    <h3>2.1 Salary</h3>
+                    <p>Base salary of <span class="highlight">[Amount]</span> per annum, paid [payment frequency].</p>
+                    <h3>2.2 Benefits</h3>
+                    <ul>
+                        <li>Health Insurance: Medical, dental, and vision coverage</li>
+                        <li>Retirement: 401(k) with company matching</li>
+                        <li>Paid Time Off: 20 days per year</li>
+                        <li>Professional Development: Annual training budget</li>
+                    </ul>
+                    <h3>2.3 Bonus Structure</h3>
+                    <p>Performance-based bonuses evaluated annually, up to 15% of base salary.</p>
+                </div>
+                <div class="agreement-box">
+                    <input type="checkbox" id="agree2" class="agreement-checkbox">
+                    <label for="agree2" class="agreement-label">I accept the compensation and benefits package as described</label>
+                </div>
+            </div>
+
+            <div class="section" id="section3">
+                <h2>Work Schedule & Location</h2>
+                <div class="content-box">
+                    <h3>3.1 Working Hours</h3>
+                    <ul>
+                        <li>Standard hours: Monday to Friday, 9:00 AM to 5:00 PM</li>
+                        <li>Lunch break: 1 hour</li>
+                        <li>Flexible working hours available upon agreement</li>
+                    </ul>
+                    <h3>3.2 Location</h3>
+                    <p>Primary work location: <span class="highlight">[Office Address]</span></p>
+                    <p>Remote work options available as per company policy.</p>
+                    <h3>3.3 Travel Requirements</h3>
+                    <p>Occasional travel may be required (up to 20% of work time).</p>
+                </div>
+                <div class="agreement-box">
+                    <input type="checkbox" id="agree3" class="agreement-checkbox">
+                    <label for="agree3" class="agreement-label">I agree to the work schedule and location terms</label>
+                </div>
+            </div>
+
+            <div class="section" id="section4">
+                <h2>Confidentiality & IP Rights</h2>
+                <div class="content-box">
+                    <h3>4.1 Confidential Information</h3>
+                    <p>Employee agrees to maintain strict confidentiality of:</p>
+                    <ul>
+                        <li>Trade secrets and proprietary information</li>
+                        <li>Client and customer data</li>
+                        <li>Business strategies and plans</li>
+                        <li>Technical specifications and processes</li>
+                    </ul>
+                    <h3>4.2 Intellectual Property</h3>
+                    <p>All work products created during employment belong to the company.</p>
+                </div>
+                <div class="agreement-box">
+                    <input type="checkbox" id="agree4" class="agreement-checkbox">
+                    <label for="agree4" class="agreement-label">I understand and agree to the confidentiality terms</label>
+                </div>
+            </div>
+
+            <div class="section" id="section5">
+                <h2>Non-Compete & Non-Solicitation</h2>
+                <div class="content-box">
+                    <h3>5.1 Non-Compete Period</h3>
+                    <p>For 12 months after employment termination, employee shall not:</p>
+                    <ul>
+                        <li>Work for direct competitors</li>
+                        <li>Start a competing business</li>
+                        <li>Provide consulting services to competitors</li>
+                    </ul>
+                    <h3>5.2 Non-Solicitation</h3>
+                    <p>Employee agrees not to solicit:</p>
+                    <ul>
+                        <li>Company's employees</li>
+                        <li>Clients or customers</li>
+                        <li>Business partners</li>
+                    </ul>
+                </div>
+                <div class="agreement-box">
+                    <input type="checkbox" id="agree5" class="agreement-checkbox">
+                    <label for="agree5" class="agreement-label">I accept the non-compete and non-solicitation terms</label>
+                </div>
+            </div>
+
+            <div class="section" id="section6">
+                <h2>Final Agreement</h2>
+                <div class="content-box">
+                    <h3>6.1 Complete Agreement</h3>
+                    <p>This document represents the complete agreement between employee and employer.</p>
+                    <h3>6.2 Modifications</h3>
+                    <p>Any changes must be in writing and signed by both parties.</p>
+                    <h3>6.3 Governing Law</h3>
+                    <p>This agreement is governed by the laws of <span class="highlight">[State/Country]</span>.</p>
+                </div>
+                <div class="agreement-box">
+                    <input type="checkbox" id="agree6" class="agreement-checkbox">
+                    <label for="agree6" class="agreement-label">I have read, understood, and agree to all terms of this employment agreement</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button onclick="navigate('prev')" class="nav-button prev-btn" id="prevBtn">
+                ← Previous
+            </button>
+            <button onclick="navigate('next')" class="nav-button next-btn" id="nextBtn">
+                Next →
+            </button>
+        </div>
+    </div>
+
+    <!-- 오디오 요소 -->
+    <audio id="agreeAlert" preload="auto">
+        <source src="/sounds/please-agree.m4a" type="audio/mp4">
+    </audio>
+    <audio id="successSound" preload="auto">
+        <source src="/sounds/checkbox-checked.m4a" type="audio/mp4">
+    </audio>
+
+    <!-- 경고 시스템 스크립트 -->
+    <script src="/warning-system.js"></script>
+
+    <script>
+        // 현재 섹션과 전체 섹션 수 설정
+        let currentSection = 1;
+        const totalSections = 6;
+
+        // 섹션 인디케이터 초기화 함수
+        function initializeSectionIndicators() {
+            const indicator = document.getElementById('sectionIndicator');
+            for (let i = 1; i <= totalSections; i++) {
+                const dot = document.createElement('div');
+                dot.className = `indicator-dot ${i === 1 ? 'active' : ''}`;
+                dot.setAttribute('data-section', i);
+                indicator.appendChild(dot);
+            }
+        }
+
+        // 페이지 이동 함수
+        function navigate(direction) {
+            const currentCheckbox = document.getElementById(`agree${currentSection}`);
+            const container = currentCheckbox.closest('.agreement-box');
+            
+            // 체크박스가 체크되지 않은 경우 경고 표시
+            if (direction === 'next' && !currentCheckbox.checked) {
+                warningSystem.showWarning(container);
+                return;
+            }
+
+            // 현재 섹션 숨기기
+            document.getElementById(`section${currentSection}`).classList.remove('active');
+            
+            // 다음/이전 섹션으로 이동
+            if (direction === 'next' && currentSection < totalSections) {
+                currentSection++;
+            } else if (direction === 'prev' && currentSection > 1) {
+                currentSection--;
+            }
+
+            // 새로운 섹션 표시 및 UI 업데이트
+            document.getElementById(`section${currentSection}`).classList.add('active');
+            updateNavigation();
+            updateProgress();
+            updateSectionIndicators();
+        }
+
+        // 네비게이션 버튼 업데이트
+        function updateNavigation() {
+            document.getElementById('prevBtn').disabled = currentSection === 1;
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.textContent = currentSection === totalSections ? 'Complete →' : 'Next →';
+        }
+
+        // 진행 상태바 업데이트
+        function updateProgress() {
+            const progress = (currentSection / totalSections) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `Section ${currentSection} of ${totalSections}`;
+            document.getElementById('progressPercentage').textContent = `${Math.round(progress)}%`;
+        }
+
+        // 섹션 인디케이터 업데이트
+        function updateSectionIndicators() {
+            document.querySelectorAll('.indicator-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index + 1 === currentSection);
+            });
+        }
+
+        // 체크박스 이벤트 리스너 추가
+        document.querySelectorAll('.agreement-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const container = this.closest('.agreement-box');
+                if (this.checked) {
+                    container.style.background = '#d4edda';
+                    container.style.borderColor = '#28a745';
+                    // 성공 사운드 재생
+                    const audio = document.getElementById('successSound');
+                    if (audio) {
+                        audio.play().catch(error => {
+                            console.log('Audio play failed:', error);
+                        });
+                    }
+                } else {
+                    container.style.background = '#e8f4fd';
+                    container.style.borderColor = '#3498db';
+                }
+            });
+        });
+
+        // 페이지 로드 시 초기화
+        window.onload = function() {
+            initializeSectionIndicators();
+            updateProgress();
+        };
+    </script>
+</body>
+</html> 

@@ -18,10 +18,13 @@
         }
         .agree-box {
             margin-top: 20px;
-            border: 2px solid red;
-            padding: 10px;
-            display: inline-block;
-            border-radius: 5px;
+            border: 2px solid #3498db;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            background: #e8f4fd;
+            border-radius: 10px;
+            transition: all 0.3s ease;
         }
         .page {
             display: none;
@@ -52,6 +55,16 @@
             padding: 10px;
             border-radius: 5px;
             cursor: pointer;
+        }
+        .agreement-box {
+            background: #e8f4fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px solid #3498db;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
         }
     </style>
 </head>
@@ -129,7 +142,7 @@
         <button class="arrow-button" id="next" onclick="movePage('next')">Next &#8594;</button>
     </div>
 
-    <!-- 음성 알림을 위한 오디오 요소 -->
+    <!-- 오디오 요소 -->
     <audio id="agreeAlert" preload="auto">
         <source src="/sounds/please-agree.m4a" type="audio/mp4">
     </audio>
@@ -137,25 +150,21 @@
         <source src="/sounds/checkbox-checked.m4a" type="audio/mp4">
     </audio>
 
+    <!-- 경고 시스템 스크립트 -->
+    <script src="/warning-system.js"></script>
+
     <script>
+        // 현재 페이지와 전체 페이지 수 설정
         let currentPage = 1;
         const totalPages = 4;
 
-        // 현재 페이지가 동의되었는지 확인하는 함수
+        // 현재 페이지의 동의 여부 확인
         function isCurrentPageAgreed() {
             const checkbox = document.getElementById(`agree${currentPage}`);
             return checkbox && checkbox.checked;
         }
 
-        // 음성 알림을 재생하는 함수
-        function playAgreeAlert() {
-            const audio = document.getElementById('agreeAlert');
-            audio.play().catch(error => {
-                console.log('Audio play failed:', error);
-            });
-        }
-
-        // 성공 소리를 재생하는 함수
+        // 성공 사운드 재생 함수
         function playSuccessSound() {
             const audio = document.getElementById('successSound');
             audio.play().catch(error => {
@@ -163,30 +172,40 @@
             });
         }
 
-        // 페이지를 이동하는 함수
+        // 페이지 이동 함수
         function movePage(direction) {
-            if (direction === 'next') {
-                if (!isCurrentPageAgreed()) {
-                    playAgreeAlert();
-                    alert('Please agree to the terms before proceeding to the next page.');
-                    return;
-                }
+            // 현재 체크박스와 컨테이너 요소 가져오기
+            const currentCheckbox = document.getElementById(`agree${currentPage}`);
+            const container = currentCheckbox.closest('.agree-box');
+            
+            // 다음 페이지로 이동 시 체크박스 확인
+            if (direction === 'next' && !isCurrentPageAgreed()) {
+                // 부모 프레임에 경고 메시지 전송
+                window.parent.postMessage({
+                    type: 'showWarning',
+                    selector: '.agree-box'
+                }, '*');
+                return;
             }
 
+            // 현재 페이지 숨기기
             document.getElementById(`page${currentPage}`).classList.remove('active');
             
+            // 다음/이전 페이지로 이동
             if (direction === 'next' && currentPage < totalPages) {
                 currentPage++;
             } else if (direction === 'prev' && currentPage > 1) {
                 currentPage--;
             }
             
+            // 새로운 페이지 표시
             document.getElementById(`page${currentPage}`).classList.add('active');
         }
 
-        // 체크박스에 이벤트 리스너 추가
+        // 체크박스 이벤트 리스너 설정
         document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
+                // 체크박스 선택 시 성공 사운드 재생
                 if (this.checked) {
                     playSuccessSound();
                 }
