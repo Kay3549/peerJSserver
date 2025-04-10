@@ -14,8 +14,10 @@ const WarningSystem = {
             warningContainer.id = 'warning-container';
             warningContainer.style.position = 'fixed';
             warningContainer.style.top = '20px';
-            warningContainer.style.left = '50%';
-            warningContainer.style.transform = 'translateX(-50%)';
+            warningContainer.style.left = '0';
+            warningContainer.style.right = '0';
+            warningContainer.style.display = 'flex';
+            warningContainer.style.justifyContent = 'center';
             warningContainer.style.zIndex = '9999';
             document.body.appendChild(warningContainer);
         }
@@ -55,6 +57,8 @@ const WarningSystem = {
                     gap: 10px;
                     animation: fadeInDown 0.5s ease-out;
                     max-width: 500px;
+                    margin-left: auto;
+                    margin-right: auto;
                 }
                 
                 /* 경고 아이콘 스타일 */
@@ -91,11 +95,11 @@ const WarningSystem = {
                 @keyframes fadeInDown {
                     from { 
                         opacity: 0;
-                        transform: translateY(-20px) translateX(-50%);
+                        transform: translateY(-20px);
                     }
                     to { 
                         opacity: 1;
-                        transform: translateY(0) translateX(-50%);
+                        transform: translateY(0);
                     }
                 }
                 

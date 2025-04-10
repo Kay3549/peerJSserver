@@ -248,6 +248,7 @@
         <!-- 네비게이션 버튼 -->
         <div class="nav-buttons">
             <button onclick="navigate('prev')" class="prev-btn" id="prevBtn" disabled>Previous</button>
+            <button onclick="completeContract()" class="next-btn" id="completeBtn" style="display: none;">Complete</button>
             <button onclick="navigate('next')" class="next-btn" id="nextBtn">Next</button>
         </div>
     </div>
@@ -256,6 +257,20 @@
         // 현재 페이지와 전체 페이지 수 설정
         let currentPage = 1;
         const totalPages = 3;
+
+        // 계약 완료 처리 함수
+        function completeContract() {
+            const finalCheckbox = document.querySelector(`#agree${totalPages}`);
+            if (!finalCheckbox || !finalCheckbox.checked) {
+                WarningSystem.showWarning(
+                    'Please check the final agreement box before completing.',
+                    `#agree-box-${totalPages}`
+                );
+                return;
+            }
+            // 계약 완료 처리 로직
+            alert('Contract completed successfully!');
+        }
 
         // 페이지 이동 함수
         function navigate(direction) {
@@ -297,7 +312,18 @@
         // 네비게이션 버튼 상태 업데이트
         function updateNavigation() {
             document.getElementById('prevBtn').disabled = currentPage === 1;
-            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+            
+            // 마지막 페이지에서는 Next 버튼 대신 Complete 버튼 표시
+            const nextBtn = document.getElementById('nextBtn');
+            const completeBtn = document.getElementById('completeBtn');
+            
+            if (currentPage === totalPages) {
+                nextBtn.style.display = 'none';
+                completeBtn.style.display = 'block';
+            } else {
+                nextBtn.style.display = 'block';
+                completeBtn.style.display = 'none';
+            }
         }
 
         // 체크박스 이벤트 리스너 추가
