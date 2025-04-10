@@ -4,189 +4,253 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Contract</title>
+    <!-- 경고 시스템 스크립트 -->
+    <script src="/warning-system.js"></script>
     <style>
+        /* 기본 페이지 스타일 */
         body {
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
             line-height: 1.6;
+            margin: 0;
+            padding: 40px;
+            background: #f7f7f7;
+            color: #1a1a1a;
+        }
+
+        /* 메인 컨테이너 스타일 */
+        .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
-            background: #fafafa;
-            color: #333;
-        }
-
-        .contract-section {
             background: white;
-            padding: 30px;
-            margin: 20px 0;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            display: none;
-        }
-
-        .contract-section.active {
-            display: block;
-        }
-
-        h1 {
-            color: #1a1a1a;
-            font-size: 2em;
-            margin-bottom: 1em;
-            text-align: center;
-        }
-
-        h2 {
-            color: #2563eb;
-            font-size: 1.5em;
-            margin-bottom: 1em;
-            padding-bottom: 0.5em;
-            border-bottom: 2px solid #e5e7eb;
-        }
-
-        .terms {
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
-        .terms li {
-            margin: 10px 0;
-        }
-
-        .agree-box {
-            background: #f0f9ff;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-            border: 1px solid #93c5fd;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.2s ease;
-        }
-
-        .agree-box:hover {
-            background: #e0f2fe;
-        }
-
-        .agree-checkbox {
-            width: 20px;
-            height: 20px;
-            accent-color: #2563eb;
-        }
-
-        .nav-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-            gap: 20px;
-        }
-
-        button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.2s ease;
-        }
-
-        button:hover {
-            transform: translateY(-1px);
-        }
-
-        .prev-btn {
-            background: #e5e7eb;
-            color: #4b5563;
-        }
-
-        .next-btn {
-            background: #2563eb;
-            color: white;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: #e5e7eb;
-            margin: 20px 0;
-            border-radius: 2px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             overflow: hidden;
         }
 
+        /* 메인 제목 스타일 */
+        h1 {
+            text-align: center;
+            color: #1a1a1a;
+            font-size: 2.5em;
+            font-weight: 600;
+            margin: 40px 0;
+        }
+
+        /* 계약서 섹션 스타일 */
+        .section {
+            display: none;
+            padding: 40px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* 활성화된 섹션 스타일과 애니메이션 */
+        .section.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        /* 페이드인 애니메이션 정의 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 섹션 제목 스타일 */
+        h2 {
+            color: #1a1a1a;
+            font-size: 1.8em;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        /* 약관 내용 컨테이너 스타일 */
+        .terms {
+            background: #fafafa;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        /* 약관 항목 스타일 */
+        .terms li {
+            margin: 15px 0;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        /* 동의 체크박스 컨테이너 스타일 */
+        .agree-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 30px;
+            border: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.2s ease;
+        }
+
+        /* 동의 박스 호버 효과 */
+        .agree-box:hover {
+            background: #f1f3f5;
+            transform: translateY(-1px);
+        }
+
+        /* 체크박스 스타일 */
+        .agree-checkbox {
+            width: 22px;
+            height: 22px;
+            accent-color: #228be6;
+        }
+
+        /* 체크박스 라벨 스타일 */
+        .agree-box label {
+            font-size: 1.1em;
+            color: #1a1a1a;
+            cursor: pointer;
+        }
+
+        /* 네비게이션 버튼 컨테이너 */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            padding: 30px 40px;
+            background: #fafafa;
+        }
+
+        /* 버튼 기본 스타일 */
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* 비활성화된 버튼 스타일 */
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 이전 버튼 스타일 */
+        .prev-btn {
+            background: #e9ecef;
+            color: #1a1a1a;
+        }
+
+        /* 다음 버튼 스타일 */
+        .next-btn {
+            background: #228be6;
+            color: white;
+        }
+
+        /* 활성화된 버튼 호버 효과 */
+        button:not(:disabled):hover {
+            transform: translateY(-2px);
+        }
+
+        /* 진행 상태 컨테이너 */
+        .progress-container {
+            padding: 20px 40px;
+            background: white;
+        }
+
+        /* 진행 상태 바 스타일 */
+        .progress-bar {
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        /* 진행 상태 표시 스타일 */
         .progress {
             height: 100%;
-            background: #2563eb;
-            width: 0%;
+            background: #228be6;
+            width: 0;
             transition: width 0.3s ease;
+        }
+
+        /* 진행 상태 텍스트 스타일 */
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            color: #868e96;
+            font-size: 0.9em;
         }
     </style>
 </head>
 <body>
-    <h1>Simple Service Agreement</h1>
-    
-    <div class="progress-bar">
-        <div class="progress" id="progress"></div>
+    <!-- 메인 컨테이너 -->
+    <div class="container">
+        <h1>Simple Service Agreement</h1>
+
+        <!-- 진행 상태 표시 영역 -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            <div class="progress-text">
+                <span id="progressText">Section 1 of 3</span>
+                <span id="progressPercentage">33%</span>
+            </div>
+        </div>
+
+        <!-- 섹션 1: 기본 약관 -->
+        <div class="section active" id="section1">
+            <h2>Basic Terms</h2>
+            <div class="terms">
+                <li>Clear and simple service description</li>
+                <li>Straightforward pricing structure</li>
+                <li>Basic service level expectations</li>
+                <li>Standard support hours</li>
+            </div>
+            <div class="agree-box" id="agree-box-1">
+                <input type="checkbox" id="agree1" class="agree-checkbox">
+                <label for="agree1">I understand and accept these basic terms</label>
+            </div>
+        </div>
+
+        <!-- 섹션 2: 이용 가이드라인 -->
+        <div class="section" id="section2">
+            <h2>Usage Guidelines</h2>
+            <div class="terms">
+                <li>Acceptable use policy</li>
+                <li>Resource limitations</li>
+                <li>User responsibilities</li>
+                <li>Security requirements</li>
+            </div>
+            <div class="agree-box" id="agree-box-2">
+                <input type="checkbox" id="agree2" class="agree-checkbox">
+                <label for="agree2">I agree to follow these guidelines</label>
+            </div>
+        </div>
+
+        <!-- 섹션 3: 최종 동의 -->
+        <div class="section" id="section3">
+            <h2>Final Agreement</h2>
+            <div class="terms">
+                <li>Complete terms acceptance</li>
+                <li>Agreement to all sections</li>
+                <li>Understanding of responsibilities</li>
+                <li>Acknowledgment of terms</li>
+            </div>
+            <div class="agree-box" id="agree-box-3">
+                <input type="checkbox" id="agree3" class="agree-checkbox">
+                <label for="agree3">I fully agree to all terms and conditions</label>
+            </div>
+        </div>
+
+        <!-- 네비게이션 버튼 -->
+        <div class="nav-buttons">
+            <button onclick="navigate('prev')" class="prev-btn" id="prevBtn" disabled>Previous</button>
+            <button onclick="navigate('next')" class="next-btn" id="nextBtn">Next</button>
+        </div>
     </div>
-
-    <div class="contract-section active" id="section1">
-        <h2>Basic Terms</h2>
-        <div class="terms">
-            <li>Clear and simple service description</li>
-            <li>Straightforward pricing structure</li>
-            <li>Basic service level expectations</li>
-            <li>Standard support hours</li>
-        </div>
-        <div class="agree-box">
-            <input type="checkbox" id="agree1" class="agree-checkbox">
-            <label for="agree1">I understand and accept these basic terms</label>
-        </div>
-    </div>
-
-    <div class="contract-section" id="section2">
-        <h2>Usage Guidelines</h2>
-        <div class="terms">
-            <li>Acceptable use policy</li>
-            <li>Resource limitations</li>
-            <li>User responsibilities</li>
-            <li>Security requirements</li>
-        </div>
-        <div class="agree-box">
-            <input type="checkbox" id="agree2" class="agree-checkbox">
-            <label for="agree2">I agree to follow these guidelines</label>
-        </div>
-    </div>
-
-    <div class="contract-section" id="section3">
-        <h2>Final Agreement</h2>
-        <div class="terms">
-            <li>Complete terms acceptance</li>
-            <li>Agreement to all sections</li>
-            <li>Understanding of responsibilities</li>
-            <li>Acknowledgment of terms</li>
-        </div>
-        <div class="agree-box">
-            <input type="checkbox" id="agree3" class="agree-checkbox">
-            <label for="agree3">I fully agree to all terms and conditions</label>
-        </div>
-    </div>
-
-    <div class="nav-buttons">
-        <button onclick="navigate('prev')" class="prev-btn" id="prevBtn" disabled>Previous</button>
-        <button onclick="navigate('next')" class="next-btn" id="nextBtn">Next</button>
-    </div>
-
-    <!-- 오디오 요소 -->
-    <audio id="agreeAlert" preload="auto">
-        <source src="/sounds/please-agree.m4a" type="audio/mp4">
-    </audio>
-    <audio id="successSound" preload="auto">
-        <source src="/sounds/checkbox-checked.m4a" type="audio/mp4">
-    </audio>
-
-    <!-- 경고 시스템 스크립트 -->
-    <script src="/warning-system.js"></script>
 
     <script>
         // 현재 페이지와 전체 페이지 수 설정
@@ -195,59 +259,62 @@
 
         // 페이지 이동 함수
         function navigate(direction) {
-            // 현재 체크박스 확인
-            const currentCheckbox = document.querySelector(`#section${currentPage} input[type="checkbox"]`);
-            
-            // 다음 페이지로 이동 시 체크박스 확인
-            if (direction === 'next' && (!currentCheckbox || !currentCheckbox.checked)) {
-                // 부모 프레임에 경고 메시지 전송
-                window.parent.postMessage({
-                    type: 'showWarning',
-                    selector: '.checkbox-container'
-                }, '*');
+            // 현재 페이지의 체크박스 확인
+            const checkbox = document.querySelector(`#agree${currentPage}`);
+            if (direction === 'next' && (!checkbox || !checkbox.checked)) {
+                // 체크박스가 선택되지 않은 경우 경고 표시
+                WarningSystem.showWarning(
+                    'Please check the agreement box before proceeding.', 
+                    `#agree-box-${currentPage}`
+                );
                 return;
             }
 
-            // 현재 섹션 숨기기
-            document.getElementById(`section${currentPage}`).style.display = 'none';
+            // 현재 섹션 비활성화
+            document.querySelector(`#section${currentPage}`).classList.remove('active');
             
-            // 다음/이전 페이지로 이동
+            // 페이지 이동 처리
             if (direction === 'next' && currentPage < totalPages) {
                 currentPage++;
             } else if (direction === 'prev' && currentPage > 1) {
                 currentPage--;
             }
             
-            // 새로운 섹션 표시
-            document.getElementById(`section${currentPage}`).style.display = 'block';
-            
-            // 진행 상태 업데이트
+            // 새로운 섹션 활성화 및 상태 업데이트
+            document.querySelector(`#section${currentPage}`).classList.add('active');
             updateProgress();
+            updateNavigation();
         }
 
-        // 진행 상태 업데이트 함수
+        // 진행 상태 바 업데이트
         function updateProgress() {
             const progress = (currentPage / totalPages) * 100;
-            document.getElementById('progress').style.width = `${progress}%`;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Section ${currentPage} of ${totalPages}`;
+            document.getElementById('progressPercentage').textContent = `${Math.round(progress)}%`;
         }
 
-        // 초기 진행 상태 설정
-        updateProgress();
+        // 네비게이션 버튼 상태 업데이트
+        function updateNavigation() {
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+        }
 
         // 체크박스 이벤트 리스너 추가
+        // 체크박스 선택 시 성공 효과음 재생
         document.querySelectorAll('.agree-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
                 if (this.checked) {
-                    // 성공 사운드 재생
-                    const audio = document.getElementById('successSound');
-                    if (audio) {
-                        audio.play().catch(error => {
-                            console.log('Audio play failed:', error);
-                        });
-                    }
+                    WarningSystem.playSuccessSound();
                 }
             });
         });
+
+        // 페이지 로드 시 초기화
+        window.onload = function() {
+            updateProgress();
+            updateNavigation();
+        };
     </script>
 </body>
 </html> 

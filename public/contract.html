@@ -4,214 +4,265 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Insurance Contract</title>
+    <!-- 경고 시스템 스크립트 -->
+    <script src="/warning-system.js"></script>
     <style>
+        /* 기본 페이지 스타일 */
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .contract-box {
-            border: 1px solid #ccc;
+            font-family: 'Inter', system-ui, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            margin-bottom: 20px;
+            background: #fafafa;
+            color: #333;
         }
-        .agree-box {
-            margin-top: 20px;
-            border: 2px solid #3498db;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            background: #e8f4fd;
-            border-radius: 10px;
-            transition: all 0.3s ease;
+
+        /* 계약서 섹션 스타일 */
+        .contract-section {
+            background: white;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: none; /* 기본적으로 숨김 */
         }
-        .page {
-            display: none;
-        }
-        .page.active {
+
+        /* 활성화된 섹션만 표시 */
+        .contract-section.active {
             display: block;
         }
-        #agree-label {
-            text-decoration: underline;
-            text-decoration-color: red;
+
+        /* 제목 스타일 */
+        h1 {
+            color: #1a1a1a;
+            font-size: 2em;
+            margin-bottom: 1em;
+            text-align: center;
         }
-        #agree {
-            accent-color: red;
+
+        /* 섹션 제목 스타일 */
+        h2 {
+            color: #2563eb;
+            font-size: 1.5em;
+            margin-bottom: 1em;
+            padding-bottom: 0.5em;
+            border-bottom: 2px solid #e5e7eb;
         }
-        .navigation-buttons {
-            margin-top: 20px;
-            display: flex;
-            justify-content: flex-start;
-            gap: 10px;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-        }
-        .arrow-button {
-            font-size: 24px;
-            background-color: #f9f9f9;
-            border: 2px solid #ccc;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .agreement-box {
-            background: #e8f4fd;
+
+        /* 약관 내용 컨테이너 스타일 */
+        .terms {
+            background: #f8fafc;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        /* 약관 항목 스타일 */
+        .terms li {
+            margin: 10px 0;
+        }
+
+        /* 동의 체크박스 컨테이너 스타일 */
+        .agree-box {
+            background: #f0f9ff;
+            padding: 15px 20px;
+            border-radius: 8px;
             margin-top: 20px;
-            border: 2px solid #3498db;
+            border: 1px solid #93c5fd;
             display: flex;
             align-items: center;
-            transition: all 0.3s ease;
+            gap: 12px;
+            transition: all 0.2s ease;
+        }
+
+        /* 동의 박스 호버 효과 */
+        .agree-box:hover {
+            background: #e0f2fe;
+        }
+
+        /* 체크박스 스타일 */
+        .agree-checkbox {
+            width: 20px;
+            height: 20px;
+            accent-color: #2563eb;
+        }
+
+        /* 네비게이션 버튼 컨테이너 */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 20px;
+        }
+
+        /* 버튼 기본 스타일 */
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        /* 버튼 호버 효과 */
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        /* 이전 버튼 스타일 */
+        .prev-btn {
+            background: #e5e7eb;
+            color: #4b5563;
+        }
+
+        /* 다음 버튼 스타일 */
+        .next-btn {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* 진행 상태 바 컨테이너 */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e5e7eb;
+            margin: 20px 0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        /* 진행 상태 표시 */
+        .progress {
+            height: 100%;
+            background: #2563eb;
+            width: 0%;
+            transition: width 0.3s ease;
         }
     </style>
 </head>
 <body>
-    <h2>Insurance Contract Agreement</h2>
+    <h1>Insurance Contract</h1>
+    
+    <!-- 진행 상태 표시 바 -->
+    <div class="progress-bar">
+        <div class="progress" id="progressBar"></div>
+    </div>
 
-    <!-- 페이지 1 -->
-    <div class="contract-box page active" id="page1">
-        <h3>Section 1: General Terms</h3>
-        <p>This contract is made between [Party A] and [Party B] on [Date]. The parties agree to the following terms and conditions:</p>
-        <ul>
-            <li>Term 1: Coverage details and policy limits.</li>
-            <li>Term 2: Premium payment schedule.</li>
-            <li>Term 3: Renewal terms and procedures.</li>
-            <li>Term 4: Liability and exclusions.</li>
-        </ul>
-        <p>By checking the box below, you agree to the terms outlined in this section.</p>
-
-        <div class="agree-box">
-            <input type="checkbox" id="agree1" name="agree1">
-            <label for="agree1" id="agree-label">I agree to the general terms outlined in Section 1</label>
+    <!-- 섹션 1: 보험 보장 범위 -->
+    <div class="contract-section active" id="section1">
+        <h2>Policy Coverage</h2>
+        <div class="terms">
+            <li>Comprehensive coverage details</li>
+            <li>Policy limits and deductibles</li>
+            <li>Coverage exclusions</li>
+            <li>Claims process</li>
+        </div>
+        <div class="agree-box" id="agree-box-1">
+            <input type="checkbox" id="agree1" class="agree-checkbox">
+            <label for="agree1">I understand the policy coverage</label>
         </div>
     </div>
 
-    <!-- 페이지 2 -->
-    <div class="contract-box page" id="page2">
-        <h3>Section 2: Payment Terms</h3>
-        <p>The following payment terms apply to this contract:</p>
-        <ul>
-            <li>Term 1: Monthly premium amounts.</li>
-            <li>Term 2: Payment methods (e.g., bank transfer, credit card).</li>
-            <li>Term 3: Late payment penalties.</li>
-            <li>Term 4: Refund policy in case of cancellation.</li>
-        </ul>
-        <p>By checking the box below, you agree to the payment terms outlined in this section.</p>
-
-        <div class="agree-box">
-            <input type="checkbox" id="agree2" name="agree2">
-            <label for="agree2" id="agree-label">I agree to the payment terms outlined in Section 2</label>
+    <!-- 섹션 2: 이용 약관 -->
+    <div class="contract-section" id="section2">
+        <h2>Terms and Conditions</h2>
+        <div class="terms">
+            <li>Policy duration and renewal</li>
+            <li>Premium payment terms</li>
+            <li>Cancellation policies</li>
+            <li>Dispute resolution</li>
+        </div>
+        <div class="agree-box" id="agree-box-2">
+            <input type="checkbox" id="agree2" class="agree-checkbox">
+            <label for="agree2">I agree to the terms and conditions</label>
         </div>
     </div>
 
-    <!-- 페이지 3 -->
-    <div class="contract-box page" id="page3">
-        <h3>Section 3: Confidentiality & Claims</h3>
-        <p>The parties agree to maintain confidentiality regarding personal and financial details, and agree to the following claims procedures:</p>
-        <ul>
-            <li>Term 1: Claims reporting process.</li>
-            <li>Term 2: Documentation required for claims.</li>
-            <li>Term 3: Dispute resolution procedure.</li>
-            <li>Term 4: Claim approval and payment schedule.</li>
-        </ul>
-        <p>By checking the box below, you agree to the confidentiality and claims procedures outlined in this section.</p>
-
-        <div class="agree-box">
-            <input type="checkbox" id="agree3" name="agree3">
-            <label for="agree3" id="agree-label">I agree to the confidentiality and claims procedures outlined in Section 3</label>
+    <!-- 섹션 3: 최종 동의 -->
+    <div class="contract-section" id="section3">
+        <h2>Final Agreement</h2>
+        <div class="terms">
+            <li>Complete policy acceptance</li>
+            <li>Agreement to all sections</li>
+            <li>Understanding of responsibilities</li>
+            <li>Acknowledgment of terms</li>
         </div>
-    </div>
-
-    <!-- 페이지 4 (전체 동의 페이지) -->
-    <div class="contract-box page" id="page4">
-        <h3>Final Agreement</h3>
-        <p>By checking the box below, you confirm that you have read, understood, and agree to all the terms and conditions specified in this contract, including all sections.</p>
-
-        <div class="agree-box">
-            <input type="checkbox" id="final-agree" name="final-agree">
-            <label for="final-agree" id="agree-label">I agree to the full contract, including all sections</label>
+        <div class="agree-box" id="agree-box-3">
+            <input type="checkbox" id="agree3" class="agree-checkbox">
+            <label for="agree3">I fully agree to all terms and conditions</label>
         </div>
     </div>
 
     <!-- 네비게이션 버튼 -->
-    <div class="navigation-buttons">
-        <button class="arrow-button" id="prev" onclick="movePage('prev')">&#8592; Previous</button>
-        <button class="arrow-button" id="next" onclick="movePage('next')">Next &#8594;</button>
+    <div class="nav-buttons">
+        <button onclick="navigate('prev')" class="prev-btn" id="prevBtn" disabled>Previous</button>
+        <button onclick="navigate('next')" class="next-btn" id="nextBtn">Next</button>
     </div>
-
-    <!-- 오디오 요소 -->
-    <audio id="agreeAlert" preload="auto">
-        <source src="/sounds/please-agree.m4a" type="audio/mp4">
-    </audio>
-    <audio id="successSound" preload="auto">
-        <source src="/sounds/checkbox-checked.m4a" type="audio/mp4">
-    </audio>
-
-    <!-- 경고 시스템 스크립트 -->
-    <script src="/warning-system.js"></script>
 
     <script>
         // 현재 페이지와 전체 페이지 수 설정
         let currentPage = 1;
-        const totalPages = 4;
-
-        // 현재 페이지의 동의 여부 확인
-        function isCurrentPageAgreed() {
-            const checkbox = document.getElementById(`agree${currentPage}`);
-            return checkbox && checkbox.checked;
-        }
-
-        // 성공 사운드 재생 함수
-        function playSuccessSound() {
-            const audio = document.getElementById('successSound');
-            audio.play().catch(error => {
-                console.log('Audio play failed:', error);
-            });
-        }
+        const totalPages = 3;
 
         // 페이지 이동 함수
-        function movePage(direction) {
-            // 현재 체크박스와 컨테이너 요소 가져오기
-            const currentCheckbox = document.getElementById(`agree${currentPage}`);
-            const container = currentCheckbox.closest('.agree-box');
-            
-            // 다음 페이지로 이동 시 체크박스 확인
-            if (direction === 'next' && !isCurrentPageAgreed()) {
-                // 부모 프레임에 경고 메시지 전송
-                window.parent.postMessage({
-                    type: 'showWarning',
-                    selector: '.agree-box'
-                }, '*');
+        function navigate(direction) {
+            // 현재 페이지의 체크박스 확인
+            const checkbox = document.querySelector(`#agree${currentPage}`);
+            if (direction === 'next' && (!checkbox || !checkbox.checked)) {
+                // 체크박스가 선택되지 않은 경우 경고 표시
+                WarningSystem.showWarning(
+                    'Please check the agreement box before proceeding.', 
+                    `#agree-box-${currentPage}`
+                );
                 return;
             }
 
-            // 현재 페이지 숨기기
-            document.getElementById(`page${currentPage}`).classList.remove('active');
+            // 현재 섹션 숨기기
+            document.querySelector(`#section${currentPage}`).style.display = 'none';
             
-            // 다음/이전 페이지로 이동
+            // 페이지 이동 처리
             if (direction === 'next' && currentPage < totalPages) {
                 currentPage++;
             } else if (direction === 'prev' && currentPage > 1) {
                 currentPage--;
             }
             
-            // 새로운 페이지 표시
-            document.getElementById(`page${currentPage}`).classList.add('active');
+            // 새로운 섹션 표시
+            document.querySelector(`#section${currentPage}`).style.display = 'block';
+            // 진행 상태와 네비게이션 버튼 업데이트
+            updateProgress();
+            updateNavigation();
         }
 
-        // 체크박스 이벤트 리스너 설정
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        // 진행 상태 바 업데이트
+        function updateProgress() {
+            const progress = (currentPage / totalPages) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        // 네비게이션 버튼 상태 업데이트
+        function updateNavigation() {
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+        }
+
+        // 체크박스 이벤트 리스너 추가
+        // 체크박스 선택 시 성공 효과음 재생
+        document.querySelectorAll('.agree-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
-                // 체크박스 선택 시 성공 사운드 재생
                 if (this.checked) {
-                    playSuccessSound();
+                    WarningSystem.playSuccessSound();
                 }
             });
         });
-    </script>
 
+        // 페이지 로드 시 초기화
+        window.onload = function() {
+            updateProgress();
+            updateNavigation();
+        };
+    </script>
 </body>
 </html>

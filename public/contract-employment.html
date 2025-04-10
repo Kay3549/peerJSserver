@@ -4,16 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employment Contract</title>
+    <!-- 경고 시스템 스크립트 -->
+    <script src="/warning-system.js"></script>
     <style>
+        /* 기본 페이지 스타일 - 어두운 테마 */
         body {
             margin: 0;
             padding: 20px;
-            font-family: 'Arial', sans-serif;
-            background: #2c3e50;
+            font-family: Arial, sans-serif;
+            background: #2c3e50;    /* 진한 파란색 배경 */
             min-height: 100vh;
             color: #333;
         }
 
+        /* 계약서 메인 컨테이너 스타일 */
         .contract-container {
             max-width: 1000px;
             margin: 0 auto;
@@ -22,6 +26,7 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
         }
 
+        /* 계약서 헤더 섹션 스타일 */
         .contract-header {
             background: #34495e;
             padding: 30px;
@@ -30,6 +35,7 @@
             overflow: hidden;
         }
 
+        /* 헤더 그라데이션 배경 효과 */
         .contract-header::before {
             content: '';
             position: absolute;
@@ -42,6 +48,7 @@
             z-index: 1;
         }
 
+        /* 헤더 콘텐츠 스타일 */
         .header-content {
             position: relative;
             z-index: 2;
@@ -49,6 +56,7 @@
             text-align: center;
         }
 
+        /* 헤더 제목 스타일 */
         .header-content h1 {
             margin: 0;
             font-size: 32px;
@@ -57,21 +65,25 @@
             letter-spacing: 2px;
         }
 
+        /* 헤더 설명 텍스트 스타일 */
         .header-content p {
             margin: 10px 0 0;
             font-size: 16px;
             opacity: 0.9;
         }
 
+        /* 계약서 내용 영역 스타일 */
         .contract-content {
             padding: 30px;
         }
 
+        /* 섹션 기본 스타일과 슬라이드 애니메이션 */
         .section {
             display: none;
             animation: slideIn 0.6s ease-out;
         }
 
+        /* 슬라이드 인 애니메이션 정의 */
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -83,10 +95,12 @@
             }
         }
 
+        /* 활성화된 섹션 표시 */
         .section.active {
             display: block;
         }
 
+        /* 섹션 제목 스타일 */
         .section h2 {
             color: #2c3e50;
             font-size: 24px;
@@ -97,6 +111,7 @@
             align-items: center;
         }
 
+        /* 섹션 제목 앞의 도트 장식 */
         .section h2::before {
             content: '';
             width: 8px;
@@ -106,6 +121,7 @@
             border-radius: 50%;
         }
 
+        /* 콘텐츠 박스 스타일 */
         .content-box {
             background: #f8f9fa;
             padding: 20px;
@@ -114,21 +130,25 @@
             border-left: 4px solid #3498db;
         }
 
+        /* 콘텐츠 문단 스타일 */
         .content-box p {
             margin: 10px 0;
             line-height: 1.6;
         }
 
+        /* 콘텐츠 목록 스타일 */
         .content-box ul {
             margin: 10px 0;
             padding-left: 20px;
         }
 
+        /* 콘텐츠 목록 항목 스타일 */
         .content-box li {
             margin: 8px 0;
             line-height: 1.6;
         }
 
+        /* 동의 체크박스 컨테이너 스타일 */
         .agreement-box {
             background: #e8f4fd;
             padding: 20px;
@@ -140,6 +160,7 @@
             transition: all 0.3s ease;
         }
 
+        /* 체크박스 스타일 */
         .agreement-checkbox {
             width: 24px;
             height: 24px;
@@ -148,12 +169,14 @@
             cursor: pointer;
         }
 
+        /* 체크박스 라벨 스타일 */
         .agreement-label {
             font-size: 16px;
             cursor: pointer;
             flex: 1;
         }
 
+        /* 네비게이션 버튼 컨테이너 */
         .navigation {
             background: #f8f9fa;
             padding: 20px;
@@ -164,6 +187,7 @@
             border-top: 1px solid #e9ecef;
         }
 
+        /* 네비게이션 버튼 기본 스타일 */
         .nav-button {
             padding: 12px 25px;
             border: none;
@@ -176,31 +200,37 @@
             gap: 8px;
         }
 
+        /* 이전 버튼 스타일 */
         .prev-btn {
             background: #e9ecef;
             color: #2c3e50;
         }
 
+        /* 다음 버튼 스타일 */
         .next-btn {
             background: #3498db;
             color: white;
         }
 
+        /* 버튼 호버 효과 */
         .nav-button:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
+        /* 비활성화된 버튼 스타일 */
         .nav-button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
+        /* 진행 상태 컨테이너 */
         .progress-container {
             padding: 20px 30px;
             background: #f8f9fa;
         }
 
+        /* 진행 상태 바 스타일 */
         .progress-bar {
             height: 6px;
             background: #e9ecef;
@@ -209,6 +239,7 @@
             margin-bottom: 10px;
         }
 
+        /* 진행 상태 표시 스타일 */
         .progress {
             height: 100%;
             background: linear-gradient(45deg, #3498db, #2ecc71);
@@ -216,6 +247,7 @@
             transition: width 0.3s ease;
         }
 
+        /* 진행 상태 텍스트 스타일 */
         .progress-text {
             display: flex;
             justify-content: space-between;
@@ -223,6 +255,7 @@
             color: #666;
         }
 
+        /* 섹션 인디케이터 스타일 */
         .section-indicator {
             display: flex;
             justify-content: center;
@@ -230,6 +263,7 @@
             margin: 20px 0;
         }
 
+        /* 인디케이터 도트 스타일 */
         .indicator-dot {
             width: 10px;
             height: 10px;
@@ -238,11 +272,13 @@
             transition: all 0.3s ease;
         }
 
+        /* 활성화된 인디케이터 도트 스타일 */
         .indicator-dot.active {
             background: #3498db;
             transform: scale(1.2);
         }
 
+        /* 강조 텍스트 스타일 */
         .highlight {
             background: #fff3cd;
             padding: 2px 5px;
@@ -251,7 +287,9 @@
     </style>
 </head>
 <body>
+    <!-- 메인 계약서 컨테이너 -->
     <div class="contract-container">
+        <!-- 계약서 헤더 -->
         <div class="contract-header">
             <div class="header-content">
                 <h1>Employment Agreement</h1>
@@ -259,6 +297,7 @@
             </div>
         </div>
 
+        <!-- 진행 상태 표시 영역 -->
         <div class="progress-container">
             <div class="progress-bar">
                 <div class="progress" id="progressBar"></div>
@@ -270,7 +309,9 @@
             <div class="section-indicator" id="sectionIndicator"></div>
         </div>
 
+        <!-- 계약서 본문 내용 -->
         <div class="contract-content">
+            <!-- 섹션 1: 직위 및 직무 -->
             <div class="section active" id="section1">
                 <h2>Position & Duties</h2>
                 <div class="content-box">
@@ -285,12 +326,13 @@
                         <li>Collaborate with team members effectively</li>
                     </ul>
                 </div>
-                <div class="agreement-box">
+                <div class="agreement-box" id="agree-box-1">
                     <input type="checkbox" id="agree1" class="agreement-checkbox">
                     <label for="agree1" class="agreement-label">I understand and accept the position and duties outlined above</label>
                 </div>
             </div>
 
+            <!-- 섹션 2: 보상 및 혜택 -->
             <div class="section" id="section2">
                 <h2>Compensation & Benefits</h2>
                 <div class="content-box">
@@ -306,12 +348,13 @@
                     <h3>2.3 Bonus Structure</h3>
                     <p>Performance-based bonuses evaluated annually, up to 15% of base salary.</p>
                 </div>
-                <div class="agreement-box">
+                <div class="agreement-box" id="agree-box-2">
                     <input type="checkbox" id="agree2" class="agreement-checkbox">
                     <label for="agree2" class="agreement-label">I accept the compensation and benefits package as described</label>
                 </div>
             </div>
 
+            <!-- 섹션 3: 근무 일정 및 장소 -->
             <div class="section" id="section3">
                 <h2>Work Schedule & Location</h2>
                 <div class="content-box">
@@ -327,12 +370,13 @@
                     <h3>3.3 Travel Requirements</h3>
                     <p>Occasional travel may be required (up to 20% of work time).</p>
                 </div>
-                <div class="agreement-box">
+                <div class="agreement-box" id="agree-box-3">
                     <input type="checkbox" id="agree3" class="agreement-checkbox">
                     <label for="agree3" class="agreement-label">I agree to the work schedule and location terms</label>
                 </div>
             </div>
 
+            <!-- 섹션 4: 기밀 유지 및 지적 재산권 -->
             <div class="section" id="section4">
                 <h2>Confidentiality & IP Rights</h2>
                 <div class="content-box">
@@ -347,12 +391,13 @@
                     <h3>4.2 Intellectual Property</h3>
                     <p>All work products created during employment belong to the company.</p>
                 </div>
-                <div class="agreement-box">
+                <div class="agreement-box" id="agree-box-4">
                     <input type="checkbox" id="agree4" class="agreement-checkbox">
                     <label for="agree4" class="agreement-label">I understand and agree to the confidentiality terms</label>
                 </div>
             </div>
 
+            <!-- 섹션 5: 경업 금지 및 고객 유인 금지 -->
             <div class="section" id="section5">
                 <h2>Non-Compete & Non-Solicitation</h2>
                 <div class="content-box">
@@ -371,12 +416,13 @@
                         <li>Business partners</li>
                     </ul>
                 </div>
-                <div class="agreement-box">
+                <div class="agreement-box" id="agree-box-5">
                     <input type="checkbox" id="agree5" class="agreement-checkbox">
                     <label for="agree5" class="agreement-label">I accept the non-compete and non-solicitation terms</label>
                 </div>
             </div>
 
+            <!-- 섹션 6: 최종 동의 -->
             <div class="section" id="section6">
                 <h2>Final Agreement</h2>
                 <div class="content-box">
@@ -387,13 +433,14 @@
                     <h3>6.3 Governing Law</h3>
                     <p>This agreement is governed by the laws of <span class="highlight">[State/Country]</span>.</p>
                 </div>
-                <div class="agreement-box">
+                <div class="agreement-box" id="agree-box-6">
                     <input type="checkbox" id="agree6" class="agreement-checkbox">
                     <label for="agree6" class="agreement-label">I have read, understood, and agree to all terms of this employment agreement</label>
                 </div>
             </div>
         </div>
 
+        <!-- 네비게이션 버튼 -->
         <div class="navigation">
             <button onclick="navigate('prev')" class="nav-button prev-btn" id="prevBtn">
                 ← Previous
@@ -404,108 +451,81 @@
         </div>
     </div>
 
-    <!-- 오디오 요소 -->
-    <audio id="agreeAlert" preload="auto">
-        <source src="/sounds/please-agree.m4a" type="audio/mp4">
-    </audio>
-    <audio id="successSound" preload="auto">
-        <source src="/sounds/checkbox-checked.m4a" type="audio/mp4">
-    </audio>
-
-    <!-- 경고 시스템 스크립트 -->
-    <script src="/warning-system.js"></script>
-
     <script>
-        // 현재 섹션과 전체 섹션 수 설정
-        let currentSection = 1;
-        const totalSections = 6;
+        // 현재 페이지와 전체 페이지 수 설정
+        let currentPage = 1;
+        const totalPages = 6;
 
-        // 섹션 인디케이터 초기화 함수
-        function initializeSectionIndicators() {
+        // 페이지 이동 함수
+        function navigate(direction) {
+            // 현재 페이지의 체크박스 확인
+            const checkbox = document.querySelector(`#agree${currentPage}`);
+            if (direction === 'next' && (!checkbox || !checkbox.checked)) {
+                // 체크박스가 선택되지 않은 경우 경고 표시
+                WarningSystem.showWarning(
+                    'Please check the agreement box before proceeding.', 
+                    `#agree-box-${currentPage}`
+                );
+                return;
+            }
+
+            // 현재 섹션 비활성화
+            document.querySelector(`#section${currentPage}`).classList.remove('active');
+            
+            // 페이지 이동 처리
+            if (direction === 'next' && currentPage < totalPages) {
+                currentPage++;
+            } else if (direction === 'prev' && currentPage > 1) {
+                currentPage--;
+            }
+            
+            // 새로운 섹션 활성화 및 상태 업데이트
+            document.querySelector(`#section${currentPage}`).classList.add('active');
+            updateProgress();
+            updateNavigation();
+        }
+
+        // 진행 상태 바 업데이트
+        function updateProgress() {
+            const progress = (currentPage / totalPages) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Section ${currentPage} of ${totalPages}`;
+            document.getElementById('progressPercentage').textContent = `${Math.round(progress)}%`;
+            updateSectionIndicator();
+        }
+
+        // 네비게이션 버튼 상태 업데이트
+        function updateNavigation() {
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+        }
+
+        // 섹션 인디케이터 업데이트
+        function updateSectionIndicator() {
             const indicator = document.getElementById('sectionIndicator');
-            for (let i = 1; i <= totalSections; i++) {
+            indicator.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
                 const dot = document.createElement('div');
-                dot.className = `indicator-dot ${i === 1 ? 'active' : ''}`;
-                dot.setAttribute('data-section', i);
+                dot.className = `indicator-dot${i === currentPage ? ' active' : ''}`;
                 indicator.appendChild(dot);
             }
         }
 
-        // 페이지 이동 함수
-        function navigate(direction) {
-            const currentCheckbox = document.getElementById(`agree${currentSection}`);
-            const container = currentCheckbox.closest('.agreement-box');
-            
-            // 체크박스가 체크되지 않은 경우 경고 표시
-            if (direction === 'next' && !currentCheckbox.checked) {
-                warningSystem.showWarning(container);
-                return;
-            }
-
-            // 현재 섹션 숨기기
-            document.getElementById(`section${currentSection}`).classList.remove('active');
-            
-            // 다음/이전 섹션으로 이동
-            if (direction === 'next' && currentSection < totalSections) {
-                currentSection++;
-            } else if (direction === 'prev' && currentSection > 1) {
-                currentSection--;
-            }
-
-            // 새로운 섹션 표시 및 UI 업데이트
-            document.getElementById(`section${currentSection}`).classList.add('active');
-            updateNavigation();
-            updateProgress();
-            updateSectionIndicators();
-        }
-
-        // 네비게이션 버튼 업데이트
-        function updateNavigation() {
-            document.getElementById('prevBtn').disabled = currentSection === 1;
-            const nextBtn = document.getElementById('nextBtn');
-            nextBtn.textContent = currentSection === totalSections ? 'Complete →' : 'Next →';
-        }
-
-        // 진행 상태바 업데이트
-        function updateProgress() {
-            const progress = (currentSection / totalSections) * 100;
-            document.getElementById('progressBar').style.width = `${progress}%`;
-            document.getElementById('progressText').textContent = `Section ${currentSection} of ${totalSections}`;
-            document.getElementById('progressPercentage').textContent = `${Math.round(progress)}%`;
-        }
-
-        // 섹션 인디케이터 업데이트
-        function updateSectionIndicators() {
-            document.querySelectorAll('.indicator-dot').forEach((dot, index) => {
-                dot.classList.toggle('active', index + 1 === currentSection);
-            });
-        }
-
         // 체크박스 이벤트 리스너 추가
+        // 체크박스 선택 시 성공 효과음 재생
         document.querySelectorAll('.agreement-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
-                const container = this.closest('.agreement-box');
                 if (this.checked) {
-                    container.style.background = '#d4edda';
-                    container.style.borderColor = '#28a745';
-                    // 성공 사운드 재생
-                    const audio = document.getElementById('successSound');
-                    if (audio) {
-                        audio.play().catch(error => {
-                            console.log('Audio play failed:', error);
-                        });
-                    }
-                } else {
-                    container.style.background = '#e8f4fd';
-                    container.style.borderColor = '#3498db';
+                    WarningSystem.playSuccessSound();
                 }
             });
         });
 
         // 페이지 로드 시 초기화
         window.onload = function() {
-            initializeSectionIndicators();
             updateProgress();
+            updateNavigation();
+            updateSectionIndicator();
         };
     </script>
 </body>

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTML Viewer</title>
     <style>
+        /* 기본 페이지 스타일 */
         body {
             margin: 0;
             padding: 20px;
@@ -12,11 +13,13 @@
             background-color: #f0f0f0;
         }
 
+        /* 메인 컨테이너 스타일 */
         .container {
             max-width: 1200px;
             margin: 0 auto;
         }
 
+        /* 뷰어 헤더 섹션 스타일 */
         .viewer-header {
             background-color: #fff;
             padding: 15px;
@@ -25,6 +28,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
+        /* URL 입력 필드 스타일 */
         .url-input {
             width: 70%;
             padding: 10px;
@@ -33,6 +37,7 @@
             margin-right: 10px;
         }
 
+        /* 페이지 로드 버튼 스타일 */
         .load-btn {
             padding: 10px 20px;
             background-color: #007bff;
@@ -42,19 +47,22 @@
             cursor: pointer;
         }
 
+        /* 로드 버튼 호버 효과 */
         .load-btn:hover {
             background-color: #0056b3;
         }
 
+        /* iframe 컨테이너 스타일 */
         .iframe-container {
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            height: calc(100vh - 160px);
+            height: calc(100vh - 160px); /* 헤더 높이를 제외한 전체 높이 */
             position: relative;
         }
 
+        /* iframe 스타일 */
         .viewer-iframe {
             width: 100%;
             height: 100%;
@@ -62,10 +70,12 @@
             background-color: #fff;
         }
 
+        /* 빠른 링크 섹션 스타일 */
         .quick-links {
             margin-top: 10px;
         }
 
+        /* 빠른 링크 버튼 스타일 */
         .quick-link {
             margin-right: 10px;
             color: #007bff;
@@ -73,174 +83,21 @@
             cursor: pointer;
         }
 
+        /* 빠른 링크 호버 효과 */
         .quick-link:hover {
             text-decoration: underline;
-        }
-
-        /* 경고 시스템 스타일 */
-        /* 빨간색 배너 경고 메시지 스타일 - 상단에 표시되는 경고 메시지 */
-        .warning-banner {
-            background: #ff0000;
-            color: white;
-            padding: 8px 16px;
-            text-align: center;
-            font-weight: 500;
-            margin-bottom: 0;
-            border-radius: 5px 5px 0 0;
-            display: none;
-        }
-
-        /* 경고 아이콘 추가 - ⚠️ 이모지 사용 */
-        .warning-banner::before {
-            content: '⚠️';
-            margin-right: 8px;
-        }
-
-        /* 인라인 경고 메시지 스타일 - 체크박스 옆에 표시되는 경고 */
-        .warning-inline {
-            color: #333;
-            display: none;
-            align-items: center;
-            margin-left: 8px;
-        }
-
-        /* 인라인 경고 아이콘 추가 */
-        .warning-inline::before {
-            content: '⚠️';
-            margin-right: 4px;
-        }
-
-        /* 체크박스 컨테이너 경고 상태 스타일 - 경고 시 빨간색 배경과 테두리 */
-        .warning {
-            background: #fff0f0 !important;
-            border: 1px solid #ffcdd2 !important;
-        }
-
-        /* 경고 상태일 때 배너와 인라인 경고 표시 */
-        .warning .warning-banner {
-            display: block;
-        }
-
-        .warning .warning-inline {
-            display: inline-flex;
-        }
-
-        /* 동의 박스 기본 스타일 - 모든 계약서에서 공통으로 사용되는 스타일 */
-        .agreement-box, .agree-box, .checkbox-container {
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        /* 페이드인 애니메이션 - 경고 메시지가 부드럽게 나타나는 효과 */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* 경고 요소들에 페이드인 애니메이션 적용 */
-        .warning-banner,
-        .warning-inline,
-        .warning {
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        /* 플로팅 경고 메시지 스타일 - 체크박스 위에 떠있는 경고 */
-        .warning-message {
-            display: none;
-            position: absolute;
-            top: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #ff0000;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 5px;
-            font-weight: bold;
-            animation: fadeInDown 0.3s ease-out;
-            z-index: 1000;
-        }
-
-        /* 경고 상태 스타일 - 쉐이크 애니메이션과 시각적 효과 */
-        .warning {
-            animation: shakeBox 0.5s ease-in-out !important;
-            background: #ffebee !important;
-            border: 3px solid #ff0000 !important;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3) !important;
-        }
-
-        /* 경고 상태일 때 메시지 표시 */
-        .warning .warning-message {
-            display: block;
-        }
-
-        /* 페이드인 다운 애니메이션 - 위에서 아래로 내려오는 효과 */
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -20px);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, 0);
-            }
-        }
-
-        /* 쉐이크 애니메이션 - 좌우로 흔들리는 효과 */
-        @keyframes shakeBox {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-15px); }
-            40%, 80% { transform: translateX(15px); }
-        }
-
-        /* 동의상자 기본 스타일 만약 이미 스타일이 적용되어 있지 않다면 */ 
-        .agreement-box, .agree-box, .checkbox-container {
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .warning-message::before {
-            content: '⚠️';
-            margin-right: 8px;
-        }
-
-        .warning .checkbox-label,
-        .warning label {
-            color: #333 !important;
-            font-weight: normal !important;
-        }
-
-        .inline-warning {
-            color: #333;
-            margin-left: 8px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .inline-warning::before {
-            content: '⚠️';
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        .warning-message,
-        .warning {
-            animation: fadeIn 0.3s ease-out;
         }
     </style>
 </head>
 <body>
+    <!-- 메인 컨테이너 -->
     <div class="container">
+        <!-- 뷰어 헤더 섹션 -->
         <div class="viewer-header">
+            <!-- URL 입력 필드와 로드 버튼 -->
             <input type="text" class="url-input" id="urlInput" placeholder="Enter URL or path (e.g., /contract.html)">
             <button class="load-btn" onclick="loadURL()">Load Page</button>
+            <!-- 빠른 링크 네비게이션 -->
             <div class="quick-links">
                 Quick links: 
                 <a class="quick-link" onclick="loadPage('/contract.html')">Classic Contract</a>
@@ -248,111 +105,35 @@
                 <a class="quick-link" onclick="loadPage('/contract-employment.html')">Employment Contract</a>
                 <a class="quick-link" onclick="loadPage('/contract-simple.html')">Simple Contract</a>
                 <a class="quick-link" onclick="loadPage('/index.html')">Index</a>
-                <a class="quick-link" onclick="loadPage('/viewer.html')">Viewer</a>
             </div>
         </div>
+        <!-- iframe 컨테이너 -->
         <div class="iframe-container">
-            <iframe id="viewerFrame" class="viewer-iframe" src="about:blank"></iframe>
+            <iframe id="viewerFrame" class="viewer-iframe"></iframe>
         </div>
     </div>
 
     <script>
+        // URL 입력 필드에서 페이지 로드
+        // URL을 입력하고 로드 버튼을 클릭하면 해당 페이지를 iframe에 표시
         function loadURL() {
             const url = document.getElementById('urlInput').value;
-            if (url) {
-                // 만약 URL이 http/https로 시작하지 않으면 로컬 경로로 간주
-                const finalUrl = url.startsWith('http') ? url : url.startsWith('/') ? url : '/' + url;
-                document.getElementById('viewerFrame').src = finalUrl;
-            }
+            loadPage(url);
         }
 
-        function loadPage(path) {
-            document.getElementById('urlInput').value = path;
-            document.getElementById('viewerFrame').src = path;
+        // 페이지 로드 함수
+        // 지정된 URL의 페이지를 iframe에 로드
+        function loadPage(url) {
+            const iframe = document.getElementById('viewerFrame');
+            iframe.src = url;
         }
 
-        // 입력 필드에서 엔터 키 처리
-        document.getElementById('urlInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                loadURL();
-            }
-        });
-
-        // 기본 페이지로 로드 contract.html
+        // 페이지 초기화
+        // 페이지 로드 시 기본 계약서 페이지를 표시
         window.onload = function() {
-            loadPage('/contract.html');
+            const defaultPage = '/contract.html';
+            loadPage(defaultPage);
         };
-
-        // 글로벌 경고 시스템 - 모든 계약서에서 공통으로 사용되는 경고 기능
-        window.showWarning = function(element) {
-            // 기존 경고 제거 - 이전 경고가 있다면 삭제
-            const existingBanner = element.querySelector('.warning-banner');
-            const existingInline = element.querySelector('.warning-inline');
-            if (existingBanner) existingBanner.remove();
-            if (existingInline) existingInline.remove();
-            
-            // 경고 배너 추가 - 상단에 빨간색 배너 표시
-            const warningBanner = document.createElement('div');
-            warningBanner.className = 'warning-banner';
-            warningBanner.textContent = 'Please check this box before proceeding';
-            element.insertAdjacentElement('beforebegin', warningBanner);
-            
-            // 라벨 뒤에 인라인 경고 추가 - 체크박스 옆에 경고 메시지 표시
-            const label = element.querySelector('label');
-            if (label) {
-                const warningInline = document.createElement('span');
-                warningInline.className = 'warning-inline';
-                warningInline.textContent = 'Please check this box before proceeding';
-                label.insertAdjacentElement('afterend', warningInline);
-            }
-            
-            // 시각적 효과를 위한 경고 클래스 추가 - 빨간색 배경과 테두리 적용
-            element.classList.add('warning');
-            
-            // 경고음 재생 - 사용자에게 소리로 알림
-            const audio = document.getElementById('agreeAlert');
-            if (audio) {
-                audio.play().catch(error => {
-                    console.log('Audio play failed:', error);
-                });
-            }
-            
-            // 3초 후 경고 제거 - 자동으로 경고 메시지 숨김
-            setTimeout(() => {
-                element.classList.remove('warning');
-                if (warningBanner.parentNode) {
-                    warningBanner.remove();
-                }
-                if (warningInline && warningInline.parentNode) {
-                    warningInline.remove();
-                }
-            }, 3000);
-
-            // 필요한 경우 경고 메시지가 보이도록 스크롤 - 화면에 보이지 않는 경우 자동 스크롤
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        };
-
-        // 계약서 페이지와의 통신을 위한 메시지 핸들러 - iframe과 부모 창 간의 통신
-        window.addEventListener('message', function(event) {
-            if (event.data.type === 'showWarning') {
-                const iframe = document.querySelector('iframe');
-                const element = iframe.contentDocument.querySelector(event.data.selector);
-                if (element) {
-                    showWarning(element);
-                }
-            }
-        });
-
-        // 전역 오디오 요소
-        const audioElements = `
-            <audio id="agreeAlert" preload="auto">
-                <source src="/sounds/please-agree.m4a" type="audio/mp4">
-            </audio>
-            <audio id="successSound" preload="auto">
-                <source src="/sounds/checkbox-checked.m4a" type="audio/mp4">
-            </audio>
-        `;
-        document.body.insertAdjacentHTML('beforeend', audioElements);
     </script>
 </body>
 </html> 
