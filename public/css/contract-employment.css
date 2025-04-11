@@ -1,0 +1,310 @@
+/* CSS Variables for Theme */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --accent-color: #e74c3c;
+    --text-color: #2c3e50;
+    --background-color: #f5f6fa;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #2c3e50;    /* 진한 파란색 배경 */
+    min-height: 100vh;
+    color: #333;
+}
+
+/* 계약서 메인 컨테이너 스타일 */
+.contract-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+/* 계약서 헤더 섹션 스타일 */
+.contract-header {
+    background: #34495e;
+    padding: 30px;
+    border-radius: 15px 15px 0 0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 헤더 그라데이션 배경 효과 */
+.contract-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, #3498db, #2ecc71);
+    opacity: 0.8;
+    z-index: 1;
+}
+
+/* 헤더 콘텐츠 스타일 */
+.header-content {
+    position: relative;
+    z-index: 2;
+    color: white;
+    text-align: center;
+}
+
+/* 헤더 제목 스타일 */
+.header-content h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* 헤더 설명 텍스트 스타일 */
+.header-content p {
+    margin: 10px 0 0;
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+/* 계약서 내용 영역 스타일 */
+.contract-content {
+    padding: 30px;
+}
+
+/* 섹션 기본 스타일과 슬라이드 애니메이션 */
+.section {
+    display: none;
+    animation: slideIn 0.6s ease-out;
+}
+
+/* 슬라이드 인 애니메이션 정의 */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* 활성화된 섹션 표시 */
+.section.active {
+    display: block;
+}
+
+/* 섹션 제목 스타일 */
+.section h2 {
+    color: #2c3e50;
+    font-size: 24px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #3498db;
+    display: flex;
+    align-items: center;
+}
+
+/* 섹션 제목 앞의 도트 장식 */
+.section h2::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #3498db;
+    margin-right: 10px;
+    border-radius: 50%;
+}
+
+/* 콘텐츠 박스 스타일 */
+.content-box {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 15px 0;
+    border-left: 4px solid #3498db;
+}
+
+/* 콘텐츠 문단 스타일 */
+.content-box p {
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+/* 콘텐츠 목록 스타일 */
+.content-box ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+/* 콘텐츠 목록 항목 스타일 */
+.content-box li {
+    margin: 8px 0;
+    line-height: 1.6;
+}
+
+/* 동의 체크박스 컨테이너 스타일 */
+.agreement-box {
+    background: #e8f4fd;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    border: 2px solid #3498db;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+/* 체크박스 스타일 */
+.agreement-checkbox {
+    width: 24px;
+    height: 24px;
+    margin-right: 15px;
+    accent-color: #3498db;
+    cursor: pointer;
+}
+
+/* 체크박스 라벨 스타일 */
+.agreement-label {
+    font-size: 16px;
+    cursor: pointer;
+    flex: 1;
+}
+
+/* 네비게이션 버튼 컨테이너 */
+.navigation {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 0 0 15px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #e9ecef;
+}
+
+/* 네비게이션 버튼 기본 스타일 */
+.nav-button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 이전 버튼 스타일 */
+.prev-btn {
+    background: #e9ecef;
+    color: #2c3e50;
+}
+
+/* 다음 버튼 스타일 */
+.next-btn {
+    background: #3498db;
+    color: white;
+}
+
+/* 버튼 호버 효과 */
+.nav-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* 비활성화된 버튼 스타일 */
+.nav-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 진행 상태 컨테이너 */
+.progress-container {
+    padding: 20px 30px;
+    background: #f8f9fa;
+}
+
+/* 진행 상태 바 스타일 */
+.progress-bar {
+    height: 6px;
+    background: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+/* 진행 상태 표시 스타일 */
+.progress {
+    height: 100%;
+    background: linear-gradient(45deg, #3498db, #2ecc71);
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+/* 진행 상태 텍스트 스타일 */
+.progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #666;
+}
+
+/* 섹션 인디케이터 스타일 */
+.section-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0;
+}
+
+/* 인디케이터 도트 스타일 */
+.indicator-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #e9ecef;
+    transition: all 0.3s ease;
+}
+
+/* 활성화된 인디케이터 도트 스타일 */
+.indicator-dot.active {
+    background: #3498db;
+    transform: scale(1.2);
+}
+
+/* 강조 텍스트 스타일 */
+.highlight {
+    background: #fff3cd;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .container {
+        margin: 1rem auto;
+    }
+
+    .content-box {
+        padding: 1.5rem;
+    }
+
+    button {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+} 

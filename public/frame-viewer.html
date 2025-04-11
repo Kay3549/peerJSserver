@@ -4,90 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTML Viewer</title>
-    <style>
-        /* 기본 페이지 스타일 */
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-        }
-
-        /* 메인 컨테이너 스타일 */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* 뷰어 헤더 섹션 스타일 */
-        .viewer-header {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        /* URL 입력 필드 스타일 */
-        .url-input {
-            width: 70%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-right: 10px;
-        }
-
-        /* 페이지 로드 버튼 스타일 */
-        .load-btn {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        /* 로드 버튼 호버 효과 */
-        .load-btn:hover {
-            background-color: #0056b3;
-        }
-
-        /* iframe 컨테이너 스타일 */
-        .iframe-container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            height: calc(100vh - 160px); /* 헤더 높이를 제외한 전체 높이 */
-            position: relative;
-        }
-
-        /* iframe 스타일 */
-        .viewer-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background-color: #fff;
-        }
-
-        /* 빠른 링크 섹션 스타일 */
-        .quick-links {
-            margin-top: 10px;
-        }
-
-        /* 빠른 링크 버튼 스타일 */
-        .quick-link {
-            margin-right: 10px;
-            color: #007bff;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        /* 빠른 링크 호버 효과 */
-        .quick-link:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/frame-viewer.css">
 </head>
 <body>
     <!-- 메인 컨테이너 -->
@@ -95,16 +12,12 @@
         <!-- 뷰어 헤더 섹션 -->
         <div class="viewer-header">
             <!-- URL 입력 필드와 로드 버튼 -->
-            <input type="text" class="url-input" id="urlInput" placeholder="Enter URL or path (e.g., /contract.html)">
+            <input type="text" class="url-input" id="urlInput" placeholder="Enter URL or path (e.g., /contract-employment.html)">
             <button class="load-btn" onclick="loadURL()">Load Page</button>
             <!-- 빠른 링크 네비게이션 -->
             <div class="quick-links">
                 Quick links: 
-                <a class="quick-link" onclick="loadPage('/contract.html')">Classic Contract</a>
-                <a class="quick-link" onclick="loadPage('/contract-modern.html')">Modern Contract</a>
                 <a class="quick-link" onclick="loadPage('/contract-employment.html')">Employment Contract</a>
-                <a class="quick-link" onclick="loadPage('/contract-simple.html')">Simple Contract</a>
-                <a class="quick-link" onclick="loadPage('/index.html')">Index</a>
             </div>
         </div>
         <!-- iframe 컨테이너 -->
@@ -113,27 +26,6 @@
         </div>
     </div>
 
-    <script>
-        // URL 입력 필드에서 페이지 로드
-        // URL을 입력하고 로드 버튼을 클릭하면 해당 페이지를 iframe에 표시
-        function loadURL() {
-            const url = document.getElementById('urlInput').value;
-            loadPage(url);
-        }
-
-        // 페이지 로드 함수
-        // 지정된 URL의 페이지를 iframe에 로드
-        function loadPage(url) {
-            const iframe = document.getElementById('viewerFrame');
-            iframe.src = url;
-        }
-
-        // 페이지 초기화
-        // 페이지 로드 시 기본 계약서 페이지를 표시
-        window.onload = function() {
-            const defaultPage = '/contract.html';
-            loadPage(defaultPage);
-        };
-    </script>
+    <script src="/js/frame-viewer.js"></script>
 </body>
 </html> 
